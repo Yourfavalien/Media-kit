@@ -213,5 +213,24 @@
     modal.addEventListener('click', event => { if (event.target === modal) closeForm(); });
     modal.addEventListener('close', () => document.body.classList.remove('modal-open'));
   </script>
+
+  <script>
+function loadScript(a) {
+  var b = document.getElementsByTagName("head")[0],
+      c = document.createElement("script");
+
+  c.type = "text/javascript";
+  c.src = "https://tracker.metricool.com/resources/be.js";
+  c.onreadystatechange = a;
+  c.onload = a;
+  b.appendChild(c);
+}
+
+loadScript(function () {
+  beTracker.t({
+    hash: "f12a23d8d7c1150b80bd2653c4736f80"
+  });
+});
+</script>
 </body>
 </html>
