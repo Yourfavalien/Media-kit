@@ -201,8 +201,6 @@
     }
   }
 
-  document.querySelectorAll('[data-print-portal]').forEach(button => button.addEventListener('click', () => window.print()));
-
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   })[char]);
