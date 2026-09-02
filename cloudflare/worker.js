@@ -31,6 +31,12 @@ async function readJson(request) {
   return request.json();
 }
 
+async function readLargeJson(request) {
+  const length = Number(request.headers.get('content-length') || 0);
+  if (length > 1_800_000) throw new Error('The image is too large after optimization.');
+  return request.json();
+}
+
 function professionalEmail(request) {
   return clean(request.headers.get('cf-access-authenticated-user-email'), 254).toLowerCase();
 }
@@ -140,6 +146,7 @@ async function privateSession(request, env) {
 }
 
 async function requireAdmin(request, env) {
+  if (new URL(request.url).hostname !== 'partners.yourfavalien.site') return { error: json({ error: 'Administrator access requires the protected headquarters.' }, 403) };
   const email = professionalEmail(request);
   if (!email) return { error: json({ error: 'Authentication required.' }, 401) };
   const partner = await env.DB.prepare("SELECT access_level, status FROM partners WHERE email = ? LIMIT 1").bind(email).first();
@@ -150,12 +157,36 @@ async function requireAdmin(request, env) {
 async function adminDashboard(request, env) {
   const auth = await requireAdmin(request, env);
   if (auth.error) return auth.error;
-  const [access, inquiries, partners] = await Promise.all([
+  const [access, inquiries, partners, settings] = await Promise.all([
     env.DB.prepare("SELECT id, first_name, last_name, email, company, professional_role, inquiry_type, reason, created_at FROM access_requests WHERE status = 'pending' ORDER BY created_at DESC LIMIT 50").all(),
     env.DB.prepare("SELECT id, contact_name, email, company, inquiry_type, project_name, project_brief, created_at FROM inquiries WHERE status IN ('new','reviewing') ORDER BY created_at DESC LIMIT 50").all(),
-    env.DB.prepare("SELECT COUNT(*) AS count FROM partners WHERE status = 'active'").first()
+    env.DB.prepare("SELECT COUNT(*) AS count FROM partners WHERE status = 'active'").first(),
+    env.DB.prepare("SELECT setting_key, setting_value FROM site_settings").all()
   ]);
-  return json({ accessRequests: access.results || [], inquiries: inquiries.results || [], activePartners: partners?.count || 0 });
+  return json({ accessRequests: access.results || [], inquiries: inquiries.results || [], activePartners: partners?.count || 0, content: Object.fromEntries((settings.results || []).map(row => [row.setting_key, row.setting_value])) });
+}
+
+const EDITABLE_SETTINGS = new Set(['hero_title','hero_copy','profile_title','profile_copy','business_email','hero_image','login_image']);
+
+async function publicContent(env) {
+  const settings = await env.DB.prepare("SELECT setting_key, setting_value FROM site_settings").all();
+  return json({ content: Object.fromEntries((settings.results || []).map(row => [row.setting_key, row.setting_value])) });
+}
+
+async function saveSiteContent(request, env) {
+  const auth = await requireAdmin(request, env);
+  if (auth.error) return auth.error;
+  const data = await readLargeJson(request);
+  const entries = Object.entries(data.content || {}).filter(([key, value]) => EDITABLE_SETTINGS.has(key) && typeof value === 'string');
+  if (!entries.length) return json({ error: 'No editable content was supplied.' }, 400);
+  for (const [key, value] of entries) {
+    const limit = key.endsWith('_image') ? 1_500_000 : 4000;
+    if (value.length > limit) return json({ error: `${key.replaceAll('_', ' ')} is too large.` }, 400);
+    if (key.endsWith('_image') && value && !/^data:image\/(?:jpeg|png|webp);base64,/i.test(value)) return json({ error: 'Unsupported image format.' }, 400);
+  }
+  await env.DB.batch(entries.map(([key, value]) => env.DB.prepare("INSERT INTO site_settings (setting_key, setting_value, updated_by, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value, updated_by=excluded.updated_by, updated_at=CURRENT_TIMESTAMP").bind(key, value.trim(), auth.email)));
+  await env.DB.prepare("INSERT INTO audit_log (id, actor_email, action, entity_type, details) VALUES (?, ?, 'updated', 'site_content', ?)").bind(crypto.randomUUID(), auth.email, JSON.stringify(entries.map(([key]) => key))).run();
+  return json({ message: 'Website changes published.' });
 }
 
 async function reviewAccess(request, env, id) {
@@ -200,8 +231,14 @@ export default {
       if (url.pathname === '/api/session' && request.method === 'GET') {
         return privateSession(request, env);
       }
+      if (url.pathname === '/api/content' && request.method === 'GET') {
+        return publicContent(env);
+      }
       if (url.pathname === '/api/admin/dashboard' && request.method === 'GET') {
         return adminDashboard(request, env);
+      }
+      if (url.pathname === '/api/admin/content' && request.method === 'POST') {
+        return saveSiteContent(request, env);
       }
       const reviewMatch = url.pathname.match(/^\/api\/admin\/access-requests\/([^/]+)$/);
       if (reviewMatch && request.method === 'POST') {
@@ -210,7 +247,7 @@ export default {
       if (isPartnerHost && isStaticAsset) {
         return env.ASSETS.fetch(request);
       }
-      if (isPartnerHost || url.pathname === '/portal' || url.pathname === '/portal/') {
+      if (isPartnerHost) {
         return portalResponse(request, env);
       }
       if (url.pathname.startsWith('/api/')) return json({ error: 'Not found.' }, 404);
