@@ -13,6 +13,7 @@ $assets = @(
   'terms.html',
   'yourfavalien-banner.png',
   'yourfavalien-ufo-logo.png',
+  'yfa-headquarters-logo.svg',
   'tiktok7qIOkJ4v4PNPOojBvJIWeoaKlbh6VJBE.txt',
   '.assetsignore'
 )
