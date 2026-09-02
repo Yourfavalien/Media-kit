@@ -7,7 +7,7 @@
   root.className = 'business-guide';
   root.setAttribute('aria-label', 'Xylo business headquarters guide');
   root.innerHTML = `
-    <button class="business-guide-launcher" type="button" aria-expanded="false" aria-controls="businessGuidePanel">Ask the HQ Guide</button>
+    <button class="business-guide-launcher" type="button" aria-expanded="false" aria-controls="businessGuidePanel">Ask Xylo</button>
     <section class="business-guide-panel" id="businessGuidePanel" hidden>
       <header><div><small>XYLO / BUSINESS HEADQUARTERS</small><strong>How can I guide you?</strong></div><button type="button" data-guide-close aria-label="Close guide">×</button></header>
       <p>Ask about partnerships, modeling, casting, representation, press, or professional access.</p>
