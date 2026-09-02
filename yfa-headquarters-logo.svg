@@ -1,28 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 220" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 180" role="img" aria-labelledby="title desc">
   <title id="title">YourFavAlien Business Headquarters</title>
-  <desc id="desc">A green alien flying a turquoise UFO beside the YourFavAlien Business Headquarters wordmark.</desc>
-  <g transform="translate(8 5)" stroke="#0b0c0f" stroke-width="6" stroke-linejoin="round">
-    <path d="M62 115 34 207h166l-28-92z" fill="#3bd9b6"/>
-    <path d="M76 77c5-45 78-60 91 0z" fill="#99f4f3"/>
-    <g stroke-width="4">
-      <path d="M115 35 105 15M140 35l12-20" fill="none"/>
-      <circle cx="104" cy="13" r="5" fill="#7dff17"/>
-      <circle cx="153" cy="13" r="5" fill="#7dff17"/>
-      <ellipse cx="128" cy="52" rx="28" ry="32" fill="#79ff18"/>
-      <ellipse cx="118" cy="47" rx="6" ry="9" fill="#0b0c0f"/><ellipse cx="139" cy="47" rx="6" ry="9" fill="#0b0c0f"/>
-      <path d="M120 64q8 8 16 0" fill="none" stroke-linecap="round"/>
-      <path d="M106 72 87 87M150 72l19 15" fill="none" stroke="#79ff18" stroke-width="12" stroke-linecap="round"/>
-    </g>
-    <path d="M24 92q104-55 208 0l-12 38q-91 42-184 0z" fill="#777579"/>
-    <path d="M25 92q103-28 206 0-102 25-206 0z" fill="#bcbabc"/>
-    <path d="M52 126q76 25 152 0" fill="none" stroke="#0b0c0f" stroke-width="5"/>
-    <g fill="#3bd9b6" stroke-width="4">
-      <circle cx="57" cy="110" r="10"/><circle cx="93" cy="103" r="10"/><circle cx="128" cy="100" r="10"/><circle cx="164" cy="103" r="10"/><circle cx="199" cy="110" r="10"/>
-    </g>
-  </g>
-  <g font-family="Arial, Helvetica, sans-serif">
-    <text x="270" y="104" fill="#0b0c0f" font-size="59" font-weight="800" letter-spacing="5">YOURFAVALIEN</text>
-    <rect x="274" y="126" width="595" height="3" fill="#d8ff54"/>
-    <text x="274" y="166" fill="#545960" font-size="22" font-weight="600" letter-spacing="8">BUSINESS HEADQUARTERS</text>
-  </g>
+  <desc id="desc">YFA monogram and YourFavAlien Business Headquarters wordmark</desc>
+  <rect width="720" height="180" fill="none"/>
+  <rect x="18" y="18" width="144" height="144" rx="72" fill="#0b0c0f"/>
+  <text x="90" y="108" fill="#d8ff54" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700" letter-spacing="3">YFA</text>
+  <text x="196" y="84" fill="#0b0c0f" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" letter-spacing="4">YOURFAVALIEN</text>
+  <text x="199" y="119" fill="#5c6068" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="500" letter-spacing="6">BUSINESS HEADQUARTERS</text>
 </svg>
