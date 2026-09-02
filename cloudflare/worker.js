@@ -168,13 +168,31 @@ async function requireAdmin(request, env) {
 async function adminDashboard(request, env) {
   const auth = await requireAdmin(request, env);
   if (auth.error) return auth.error;
-  const [access, inquiries, partners, settings] = await Promise.all([
+  const [access, inquiries, partners, partnerList, settings] = await Promise.all([
     env.DB.prepare("SELECT id, first_name, last_name, email, company, professional_role, inquiry_type, reason, created_at FROM access_requests WHERE status = 'pending' ORDER BY created_at DESC LIMIT 50").all(),
     env.DB.prepare("SELECT id, contact_name, email, company, inquiry_type, project_name, project_brief, created_at FROM inquiries WHERE status IN ('new','reviewing') ORDER BY created_at DESC LIMIT 50").all(),
     env.DB.prepare("SELECT COUNT(*) AS count FROM partners WHERE status = 'active'").first(),
+    env.DB.prepare("SELECT id, email, contact_name, company, professional_role, access_level, status, last_seen_at, created_at FROM partners ORDER BY CASE status WHEN 'active' THEN 0 WHEN 'suspended' THEN 1 ELSE 2 END, created_at DESC").all(),
     env.DB.prepare("SELECT setting_key, setting_value FROM site_settings").all()
   ]);
-  return json({ accessRequests: access.results || [], inquiries: inquiries.results || [], activePartners: partners?.count || 0, content: Object.fromEntries((settings.results || []).map(row => [row.setting_key, row.setting_value])) });
+  return json({ accessRequests: access.results || [], inquiries: inquiries.results || [], activePartners: partners?.count || 0, partners: partnerList.results || [], content: Object.fromEntries((settings.results || []).map(row => [row.setting_key, row.setting_value])) });
+}
+
+async function updatePartnerAccess(request, env, id) {
+  const auth = await requireAdmin(request, env);
+  if (auth.error) return auth.error;
+  const data = await readJson(request);
+  const statusMap = { suspend: 'suspended', reactivate: 'active', revoke: 'revoked' };
+  const status = statusMap[data.action];
+  if (!status) return json({ error: 'Invalid partner action.' }, 400);
+  const target = await env.DB.prepare("SELECT email, access_level FROM partners WHERE id = ?").bind(id).first();
+  if (!target) return json({ error: 'Partner account not found.' }, 404);
+  if (target.access_level === 'admin') return json({ error: 'The owner administrator account cannot be changed here.' }, 400);
+  await env.DB.batch([
+    env.DB.prepare("UPDATE partners SET status = ? WHERE id = ?").bind(status, id),
+    env.DB.prepare("INSERT INTO audit_log (id, actor_email, action, entity_type, entity_id, details) VALUES (?, ?, ?, 'partner', ?, ?)").bind(crypto.randomUUID(), auth.email, data.action, id, target.email)
+  ]);
+  return json({ message: `Partner access ${status}.` });
 }
 
 const EDITABLE_SETTINGS = new Set(['hero_title','hero_copy','profile_title','profile_copy','business_email','hero_image','login_image']);
@@ -198,6 +216,42 @@ async function saveSiteContent(request, env) {
   await env.DB.batch(entries.map(([key, value]) => env.DB.prepare("INSERT INTO site_settings (setting_key, setting_value, updated_by, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value, updated_by=excluded.updated_by, updated_at=CURRENT_TIMESTAMP").bind(key, value.trim(), auth.email)));
   await env.DB.prepare("INSERT INTO audit_log (id, actor_email, action, entity_type, details) VALUES (?, ?, 'updated', 'site_content', ?)").bind(crypto.randomUUID(), auth.email, JSON.stringify(entries.map(([key]) => key))).run();
   return json({ message: 'Website changes published.' });
+}
+
+async function listPortfolio(request, env, admin = false) {
+  if (new URL(request.url).hostname !== 'partners.yourfavalien.site') return json({ error: 'Partner access required.' }, 403);
+  const email = professionalEmail(request);
+  if (!email) return json({ error: 'Authentication required.' }, 401);
+  const partner = await env.DB.prepare("SELECT access_level, status FROM partners WHERE email = ? LIMIT 1").bind(email).first();
+  if (!partner || partner.status !== 'active' || (admin && partner.access_level !== 'admin')) return json({ error: admin ? 'Administrator access required.' : 'Active partner access required.' }, 403);
+  const rows = await env.DB.prepare("SELECT id, title, category, description, image_path, credit, is_featured, sort_order, published_at FROM portfolio_items WHERE published_at IS NOT NULL ORDER BY is_featured DESC, sort_order ASC, published_at DESC").all();
+  return json({ items: rows.results || [] });
+}
+
+async function createPortfolioItem(request, env) {
+  const auth = await requireAdmin(request, env);
+  if (auth.error) return auth.error;
+  const data = await readLargeJson(request);
+  const title = clean(data.title, 160);
+  const category = clean(data.category, 80);
+  const description = clean(data.description, 800);
+  const credit = clean(data.credit, 200);
+  const imagePath = String(data.image || '');
+  if (!title || !category || !imagePath || !/^data:image\/(?:jpeg|png|webp);base64,/i.test(imagePath) || imagePath.length > 1_500_000) return json({ error: 'Add a title, category, and supported portfolio image.' }, 400);
+  const id = crypto.randomUUID();
+  const order = await env.DB.prepare("SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order FROM portfolio_items").first();
+  await env.DB.prepare("INSERT INTO portfolio_items (id, title, category, description, image_path, credit, is_private, is_featured, sort_order, published_at) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, CURRENT_TIMESTAMP)").bind(id, title, category, description, imagePath, credit, data.is_featured ? 1 : 0, order?.next_order || 0).run();
+  await env.DB.prepare("INSERT INTO audit_log (id, actor_email, action, entity_type, entity_id) VALUES (?, ?, 'published', 'portfolio_item', ?)").bind(crypto.randomUUID(), auth.email, id).run();
+  return json({ message: 'Selected work published.', id }, 201);
+}
+
+async function deletePortfolioItem(request, env, id) {
+  const auth = await requireAdmin(request, env);
+  if (auth.error) return auth.error;
+  const result = await env.DB.prepare("DELETE FROM portfolio_items WHERE id = ?").bind(id).run();
+  if (!result.meta?.changes) return json({ error: 'Portfolio item not found.' }, 404);
+  await env.DB.prepare("INSERT INTO audit_log (id, actor_email, action, entity_type, entity_id) VALUES (?, ?, 'deleted', 'portfolio_item', ?)").bind(crypto.randomUUID(), auth.email, id).run();
+  return json({ message: 'Selected work removed.' });
 }
 
 async function reviewAccess(request, env, id) {
@@ -245,6 +299,9 @@ export default {
       if (url.pathname === '/api/partner-analytics' && request.method === 'GET') {
         return partnerAnalytics(request, env);
       }
+      if (url.pathname === '/api/portfolio' && request.method === 'GET') {
+        return listPortfolio(request, env, false);
+      }
       if (url.pathname === '/api/content' && request.method === 'GET') {
         return publicContent(env);
       }
@@ -253,6 +310,20 @@ export default {
       }
       if (url.pathname === '/api/admin/content' && request.method === 'POST') {
         return saveSiteContent(request, env);
+      }
+      if (url.pathname === '/api/admin/portfolio' && request.method === 'GET') {
+        return listPortfolio(request, env, true);
+      }
+      if (url.pathname === '/api/admin/portfolio' && request.method === 'POST') {
+        return createPortfolioItem(request, env);
+      }
+      const portfolioMatch = url.pathname.match(/^\/api\/admin\/portfolio\/([^/]+)$/);
+      if (portfolioMatch && request.method === 'DELETE') {
+        return deletePortfolioItem(request, env, decodeURIComponent(portfolioMatch[1]));
+      }
+      const partnerMatch = url.pathname.match(/^\/api\/admin\/partners\/([^/]+)$/);
+      if (partnerMatch && request.method === 'POST') {
+        return updatePartnerAccess(request, env, decodeURIComponent(partnerMatch[1]));
       }
       const reviewMatch = url.pathname.match(/^\/api\/admin\/access-requests\/([^/]+)$/);
       if (reviewMatch && request.method === 'POST') {

@@ -139,6 +139,7 @@
       const overviewReturn = document.getElementById('portalOverviewReturn');
       if (overviewReturn) overviewReturn.hidden = view === 'overview' || view === 'admin';
       if (view === 'audience') loadPartnerAnalytics();
+      if (view === 'work') loadPartnerPortfolio();
       document.querySelector('.portal-main')?.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
@@ -189,6 +190,7 @@
     if (!body.classList.contains('admin-mode')) return;
     const accessList = document.getElementById('adminAccessRequests');
     const inquiryList = document.getElementById('adminInquiries');
+    const partnerList = document.getElementById('adminPartners');
     try {
       const response = await fetch('/api/admin/dashboard', { headers: { Accept: 'application/json' } });
       const data = await response.json();
@@ -204,10 +206,36 @@
       }
       accessList.innerHTML = data.accessRequests.length ? data.accessRequests.map(item => `<article class="admin-item"><header><strong>${escapeHtml(item.first_name)} ${escapeHtml(item.last_name)}</strong><small>${escapeHtml(item.inquiry_type)}</small></header><p>${escapeHtml(item.company)} · ${escapeHtml(item.professional_role)}<br>${escapeHtml(item.email)}</p><p>${escapeHtml(item.reason)}</p><div class="admin-item-actions"><button data-admin-action="approve" data-id="${escapeHtml(item.id)}">Approve</button><button data-admin-action="decline" data-id="${escapeHtml(item.id)}">Decline</button></div></article>`).join('') : '<p>No pending requests.</p>';
       inquiryList.innerHTML = data.inquiries.length ? data.inquiries.map(item => `<article class="admin-item"><header><strong>${escapeHtml(item.project_name)}</strong><small>${escapeHtml(item.inquiry_type)}</small></header><p>${escapeHtml(item.company)} · ${escapeHtml(item.contact_name)}<br>${escapeHtml(item.email)}</p><p>${escapeHtml(item.project_brief)}</p></article>`).join('') : '<p>No new inquiries.</p>';
+      if (partnerList) partnerList.innerHTML = data.partners.length ? data.partners.map(item => `<article class="admin-item partner-account"><header><strong>${escapeHtml(item.contact_name)}</strong><span class="partner-status ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></header><p>${escapeHtml(item.company)} · ${escapeHtml(item.professional_role || item.access_level)}<br>${escapeHtml(item.email)}</p><small>${item.last_seen_at ? `Last visit: ${escapeHtml(new Date(item.last_seen_at).toLocaleString())}` : 'No portal visit recorded yet'}</small>${item.access_level === 'admin' ? '<p class="owner-protected">Owner administrator · protected</p>' : `<div class="admin-item-actions">${item.status === 'active' ? `<button data-partner-action="suspend" data-id="${escapeHtml(item.id)}">Suspend</button>` : `<button data-partner-action="reactivate" data-id="${escapeHtml(item.id)}">Reactivate</button>`}<button data-partner-action="revoke" data-id="${escapeHtml(item.id)}">Revoke</button></div>`}</article>`).join('') : '<p>No partner accounts.</p>';
     } catch (error) {
       accessList.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
       inquiryList.innerHTML = '';
     }
+  }
+
+  let partnerPortfolioLoaded = false;
+  async function loadPartnerPortfolio(force = false) {
+    if (partnerPortfolioLoaded && !force) return;
+    const gallery = document.getElementById('partnerPortfolio');
+    if (!gallery) return;
+    try {
+      const response = await fetch('/api/portfolio', { headers: { Accept: 'application/json' } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Selected work is temporarily unavailable.');
+      gallery.innerHTML = data.items.length ? data.items.map(item => `<figure class="portfolio-piece"><img src="${item.image_path}" alt="${escapeHtml(item.title)}"><figcaption><small>${escapeHtml(item.category)}</small><strong>${escapeHtml(item.title)}</strong>${item.description ? `<p>${escapeHtml(item.description)}</p>` : ''}${item.credit ? `<span>${escapeHtml(item.credit)}</span>` : ''}</figcaption></figure>`).join('') : '<div class="portfolio-empty"><strong>No selected work has been published yet.</strong><p>The owner can add the first portfolio images from the Selected Work workspace in the Control Room.</p></div>';
+      partnerPortfolioLoaded = true;
+    } catch (error) { gallery.innerHTML = `<p>${escapeHtml(error.message)}</p>`; }
+  }
+
+  async function loadAdminPortfolio() {
+    const list = document.getElementById('adminPortfolio');
+    if (!list || !body.classList.contains('admin-mode')) return;
+    try {
+      const response = await fetch('/api/admin/portfolio', { headers: { Accept: 'application/json' } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to load selected work.');
+      list.innerHTML = data.items.length ? data.items.map(item => `<article class="portfolio-admin-item"><img src="${item.image_path}" alt=""><div><small>${escapeHtml(item.category)}</small><strong>${escapeHtml(item.title)}</strong>${item.credit ? `<span>${escapeHtml(item.credit)}</span>` : ''}</div><button data-portfolio-delete data-id="${escapeHtml(item.id)}">Remove</button></article>`).join('') : '<p>You have not published any selected work yet.</p>';
+    } catch (error) { list.innerHTML = `<p>${escapeHtml(error.message)}</p>`; }
   }
 
   function optimizeImage(file) {
@@ -266,9 +294,38 @@
     });
   }
 
+  const portfolioForm = document.getElementById('portfolioForm');
+  if (portfolioForm) {
+    portfolioForm.elements.portfolio_image.addEventListener('change', async () => {
+      const file = portfolioForm.elements.portfolio_image.files[0];
+      if (!file) return;
+      const status = portfolioForm.querySelector('.form-status');
+      try { document.getElementById('portfolioImagePreview').src = await optimizeImage(file); status.textContent = ''; }
+      catch (error) { status.textContent = error.message; }
+    });
+    portfolioForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = portfolioForm.querySelector('[type="submit"]');
+      const status = portfolioForm.querySelector('.form-status');
+      button.disabled = true; status.textContent = 'Publishing…';
+      try {
+        const file = portfolioForm.elements.portfolio_image.files[0];
+        if (!file) throw new Error('Choose an image first.');
+        const payload = { title: portfolioForm.elements.title.value.trim(), category: portfolioForm.elements.category.value, description: portfolioForm.elements.description.value.trim(), credit: portfolioForm.elements.credit.value.trim(), is_featured: portfolioForm.elements.is_featured.checked, image: await optimizeImage(file) };
+        const response = await fetch('/api/admin/portfolio', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Unable to publish selected work.');
+        portfolioForm.reset(); document.getElementById('portfolioImagePreview').src = 'yourfavalien-banner.png'; status.textContent = 'Selected work published.'; partnerPortfolioLoaded = false; await loadAdminPortfolio();
+      } catch (error) { status.textContent = error.message; }
+      finally { button.disabled = false; }
+    });
+  }
+
   document.addEventListener('click', async event => {
     const refresh = event.target.closest('[data-admin-refresh]');
     const action = event.target.closest('[data-admin-action]');
+    const partnerAction = event.target.closest('[data-partner-action]');
+    const portfolioDelete = event.target.closest('[data-portfolio-delete]');
     const panelButton = event.target.closest('[data-admin-panel]');
     if (panelButton) {
       const panel = panelButton.dataset.adminPanel;
@@ -276,6 +333,16 @@
       document.querySelectorAll('[data-admin-panel]').forEach(button => button.classList.toggle('active', button.dataset.adminPanel === panel));
     }
     if (refresh) loadAdmin();
+    if (partnerAction) {
+      partnerAction.disabled = true;
+      const response = await fetch(`/api/admin/partners/${encodeURIComponent(partnerAction.dataset.id)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: partnerAction.dataset.partnerAction }) });
+      if (response.ok) loadAdmin(); else partnerAction.disabled = false;
+    }
+    if (portfolioDelete && confirm('Remove this item from Selected Work?')) {
+      portfolioDelete.disabled = true;
+      const response = await fetch(`/api/admin/portfolio/${encodeURIComponent(portfolioDelete.dataset.id)}`, { method: 'DELETE' });
+      if (response.ok) { partnerPortfolioLoaded = false; loadAdminPortfolio(); } else portfolioDelete.disabled = false;
+    }
     if (action) {
       action.disabled = true;
       const response = await fetch(`/api/admin/access-requests/${encodeURIComponent(action.dataset.id)}`, {
@@ -289,5 +356,6 @@
     document.querySelectorAll('.portal-view').forEach(panel => { panel.hidden = panel.dataset.view !== 'admin'; });
     document.querySelectorAll('.portal-sidebar [data-portal-view]').forEach(item => item.classList.toggle('active', item.dataset.portalView === 'admin'));
     loadAdmin();
+    loadAdminPortfolio();
   }
 })();
