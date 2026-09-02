@@ -134,8 +134,52 @@
       document.querySelectorAll('.portal-sidebar [data-portal-view]').forEach(item => {
         item.classList.toggle('active', item.dataset.portalView === view);
       });
+      const isOwnerPreview = body.classList.contains('admin-mode') && view !== 'admin';
+      body.classList.toggle('partner-preview-mode', isOwnerPreview);
+      const overviewReturn = document.getElementById('portalOverviewReturn');
+      if (overviewReturn) overviewReturn.hidden = view === 'overview' || view === 'admin';
+      if (view === 'audience') loadPartnerAnalytics();
+      document.querySelector('.portal-main')?.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
+
+  let analyticsLoaded = false;
+  async function loadPartnerAnalytics() {
+    if (analyticsLoaded) return;
+    const status = document.getElementById('analyticsStatus');
+    if (!status) return;
+    try {
+      const response = await fetch('/api/partner-analytics', { headers: { Accept: 'application/json' } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Analytics are temporarily unavailable.');
+      const number = new Intl.NumberFormat('en-US');
+      const metrics = {
+        'tiktok.followers': data.platforms.tiktok.followers,
+        'tiktok.engagementRate': `${data.platforms.tiktok.engagementRate}%`,
+        'tiktok.impressions': data.platforms.tiktok.impressions,
+        'tiktok.averageViews': data.platforms.tiktok.averageViews,
+        'instagram.followers': data.platforms.instagram.followers,
+        'instagram.engagementRate': `${data.platforms.instagram.engagementRate}%`,
+        'instagram.impressions': data.platforms.instagram.impressions,
+        'instagram.reach30d': data.platforms.instagram.reach30d,
+        'facebook.followers': data.platforms.facebook.followers,
+        'facebook.engagementRate': `${data.platforms.facebook.engagementRate}%`,
+        'facebook.impressions': data.platforms.facebook.impressions,
+        'facebook.reach30d': data.platforms.facebook.reach30d
+      };
+      Object.entries(metrics).forEach(([key, value]) => {
+        const element = document.querySelector(`[data-partner-metric="${key}"]`);
+        if (element) element.textContent = typeof value === 'number' ? number.format(value) : value;
+      });
+      status.textContent = data.source === 'live' ? 'Live connected analytics' : 'Latest verified analytics';
+      document.getElementById('analyticsUpdated').textContent = `Updated ${new Date(data.updatedAt).toLocaleString()}`;
+      analyticsLoaded = true;
+    } catch (error) {
+      status.textContent = error.message;
+    }
+  }
+
+  document.querySelectorAll('[data-print-portal]').forEach(button => button.addEventListener('click', () => window.print()));
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'

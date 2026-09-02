@@ -145,6 +145,17 @@ async function privateSession(request, env) {
   return json({ email, ...partner });
 }
 
+async function partnerAnalytics(request, env) {
+  if (new URL(request.url).hostname !== 'partners.yourfavalien.site') return json({ error: 'Partner access required.' }, 403);
+  const email = professionalEmail(request);
+  if (!email) return json({ error: 'Authentication required.' }, 401);
+  const partner = await env.DB.prepare("SELECT status FROM partners WHERE email = ? LIMIT 1").bind(email).first();
+  if (!partner || partner.status !== 'active') return json({ error: 'Active partner access required.' }, 403);
+  const response = await fetch('https://yourfavalien-analytics.aydenmtz54.workers.dev/api/analytics', { headers: { Accept: 'application/json' } });
+  if (!response.ok) return json({ error: 'Current analytics are temporarily unavailable.' }, 502);
+  return new Response(await response.text(), { status: 200, headers: JSON_HEADERS });
+}
+
 async function requireAdmin(request, env) {
   if (new URL(request.url).hostname !== 'partners.yourfavalien.site') return { error: json({ error: 'Administrator access requires the protected headquarters.' }, 403) };
   const email = professionalEmail(request);
@@ -230,6 +241,9 @@ export default {
       }
       if (url.pathname === '/api/session' && request.method === 'GET') {
         return privateSession(request, env);
+      }
+      if (url.pathname === '/api/partner-analytics' && request.method === 'GET') {
+        return partnerAnalytics(request, env);
       }
       if (url.pathname === '/api/content' && request.method === 'GET') {
         return publicContent(env);
