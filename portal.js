@@ -9,8 +9,16 @@
   if (editorGrid && !document.querySelector('#contentEditor [name="availability_status"]')) {
     const profileTitle = document.querySelector('#contentEditor [name="profile_title"]')?.closest('label');
     const statusField = document.createElement('label');
-    statusField.innerHTML = '<span>Opportunity status</span><input name="availability_status" maxlength="120" list="availabilityOptions" placeholder="Accepting selected opportunities"><datalist id="availabilityOptions"><option value="Accepting all opportunities"><option value="Accepting selected opportunities"><option value="Currently reviewing select opportunities"><option value="Open to partnerships and representation"><option value="Bookings temporarily paused"></datalist><small>This appears beneath the homepage buttons.</small>';
+    statusField.innerHTML = '<span>Opportunity status</span><select name="availability_status"><option value="Accepting all opportunities">🟢 Green — accepting all opportunities</option><option value="Currently reviewing select opportunities">🟡 Yellow — reviewing select opportunities</option><option value="Availability limited — inquiries still welcome">🔴 Red — availability limited, but inquiries are welcome</option></select><small>Choose a status and the homepage light changes automatically.</small>';
     editorGrid.insertBefore(statusField, profileTitle || null);
+  }
+  const headerLogo = document.querySelector('.site-header .wordmark-mark img');
+  if (headerLogo) headerLogo.dataset.contentImage = 'header_logo';
+  if (editorGrid && !document.querySelector('#contentEditor [name="header_logo_upload"]')) {
+    const logoField = document.createElement('label');
+    logoField.className = 'image-editor';
+    logoField.innerHTML = '<span>Header spaceship logo</span><img id="headerLogoPreview" src="yourfavalien-ufo-clean.png" alt="Header logo preview"><input name="header_logo_upload" type="file" accept="image/jpeg,image/png,image/webp"><small>Changes only the small logo beside “YOURFAVALIEN / Business Headquarters” in the black top bar. The words stay the same.</small>';
+    editorGrid.appendChild(logoField);
   }
 
   function applySiteContent(content = {}) {
@@ -19,6 +27,11 @@
       document.querySelectorAll(`[data-content-text="${key}"]`).forEach(element => { element.textContent = value; });
       document.querySelectorAll(`[data-content-image="${key}"]`).forEach(element => { element.src = value; });
       document.querySelectorAll(`[data-content-email="${key}"]`).forEach(element => { element.textContent = value; element.href = `mailto:${value}`; });
+    });
+    const availability = String(content.availability_status || document.querySelector('[data-content-text="availability_status"]')?.textContent || '').toLowerCase();
+    document.querySelectorAll('.hero-status').forEach(element => {
+      element.classList.remove('status-open', 'status-selective', 'status-limited');
+      element.classList.add(availability.includes('all opportunities') ? 'status-open' : availability.includes('limited') || availability.includes('paused') || availability.includes('booked') ? 'status-limited' : 'status-selective');
     });
   }
 
@@ -211,6 +224,7 @@
         ['hero_title','hero_copy','availability_status','profile_title','profile_copy','business_email'].forEach(key => { if (editor.elements[key]) editor.elements[key].value = editableContent[key] || document.querySelector(`[data-content-text="${key}"],[data-content-email="${key}"]`)?.textContent?.trim() || ''; });
         if (editableContent.hero_image) document.getElementById('heroImagePreview').src = editableContent.hero_image;
         if (editableContent.login_image) document.getElementById('loginImagePreview').src = editableContent.login_image;
+        if (editableContent.header_logo) document.getElementById('headerLogoPreview').src = editableContent.header_logo;
       }
       accessList.innerHTML = data.accessRequests.length ? data.accessRequests.map(item => `<article class="admin-item"><header><strong>${escapeHtml(item.first_name)} ${escapeHtml(item.last_name)}</strong><small>${escapeHtml(item.inquiry_type)}</small></header><p>${escapeHtml(item.company)} · ${escapeHtml(item.professional_role)}<br>${escapeHtml(item.email)}</p><p>${escapeHtml(item.reason)}</p><div class="admin-item-actions"><button data-admin-action="approve" data-id="${escapeHtml(item.id)}">Approve</button><button data-admin-action="decline" data-id="${escapeHtml(item.id)}">Decline</button></div></article>`).join('') : '<p>No pending requests.</p>';
       inquiryList.innerHTML = data.inquiries.length ? data.inquiries.map(item => `<article class="admin-item"><header><strong>${escapeHtml(item.project_name)}</strong><small>${escapeHtml(item.inquiry_type)}</small></header><p>${escapeHtml(item.company)} · ${escapeHtml(item.contact_name)}<br>${escapeHtml(item.email)}</p><p>${escapeHtml(item.project_brief)}</p></article>`).join('') : '<p>No new inquiries.</p>';
@@ -246,13 +260,12 @@
     } catch (error) { list.innerHTML = `<p>${escapeHtml(error.message)}</p>`; }
   }
 
-  function optimizeImage(file) {
+  function optimizeImage(file, max = 1600) {
     return new Promise((resolve, reject) => {
       if (!file) return resolve('');
       if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return reject(new Error('Choose a JPG, PNG, or WebP image.'));
       const image = new Image();
       image.onload = () => {
-        const max = 1600;
         const scale = Math.min(1, max / Math.max(image.width, image.height));
         const canvas = document.createElement('canvas');
         canvas.width = Math.round(image.width * scale);
@@ -270,7 +283,7 @@
 
   const contentEditor = document.getElementById('contentEditor');
   if (contentEditor) {
-    [['hero_image_upload','heroImagePreview'],['login_image_upload','loginImagePreview']].forEach(([name, previewId]) => {
+    [['hero_image_upload','heroImagePreview'],['login_image_upload','loginImagePreview'],['header_logo_upload','headerLogoPreview']].forEach(([name, previewId]) => {
       contentEditor.elements[name].addEventListener('change', async () => {
         const file = contentEditor.elements[name].files[0];
         if (!file) return;
@@ -287,8 +300,10 @@
         ['hero_title','hero_copy','availability_status','profile_title','profile_copy','business_email'].forEach(key => { content[key] = contentEditor.elements[key].value.trim(); });
         const heroFile = contentEditor.elements.hero_image_upload.files[0];
         const loginFile = contentEditor.elements.login_image_upload.files[0];
+        const logoFile = contentEditor.elements.header_logo_upload.files[0];
         if (heroFile) content.hero_image = await optimizeImage(heroFile);
         if (loginFile) content.login_image = await optimizeImage(loginFile);
+        if (logoFile) content.header_logo = await optimizeImage(logoFile, 640);
         const response = await fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content }) });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Unable to publish changes.');
@@ -297,6 +312,7 @@
         status.textContent = 'Published successfully.';
         contentEditor.elements.hero_image_upload.value = '';
         contentEditor.elements.login_image_upload.value = '';
+        contentEditor.elements.header_logo_upload.value = '';
       } catch (error) { status.textContent = error.message; }
       finally { button.disabled = false; }
     });
