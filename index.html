@@ -2,354 +2,128 @@
 <html lang="en" data-yfa-theme-page="media-kit">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Creator media kit and partnership overview for YourFavAlien.">
-  <title>YourFavAlien - Creator Media Kit</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="The private business headquarters for YourFavAlien partnerships, representation, casting, press, and creative collaborations.">
+  <meta name="theme-color" content="#0b0c0f">
+  <title>YourFavAlien Business Headquarters</title>
   <link rel="stylesheet" href="styles.css">
-  <style>
-    :root { --lilac:#c7b6c3; --ink:#191817; --paper:#ece4e8; --line:rgba(25,24,23,.23); --yfa-media-contact:#8e4e36; --yfa-media-contact-text:#f2e9e4; --yfa-media-available:#2fae4e; --yfa-media-modal:#f3ecef; }
-    * { box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
-    body { margin:0; background:var(--lilac); color:var(--ink); font-family:Arial,Helvetica,sans-serif; }
-    body.modal-open { overflow:hidden; }
-    a { color:inherit; text-decoration:none; }
-    button { font:inherit; }
-    .topbar { height:72px; padding:0 clamp(22px,4vw,68px); display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); font-size:12px; letter-spacing:.12em; text-transform:uppercase; }
-    .brand { font-weight:800; border:0; background:transparent; color:inherit; font:inherit; letter-spacing:inherit; text-transform:inherit; cursor:pointer; padding:0; }
-    nav { display:flex; align-items:center; gap:30px; }
-    .nav-cta { padding:11px 15px; border:1px solid var(--ink); }
-    .hero { position:relative; width:100%; overflow:hidden; background:#222; }
-    .hero img { display:block; width:100%; height:auto; min-height:260px; object-fit:cover; animation:banner-fade-in 1.1s ease-out both; }
-    .hero::after { content:""; position:absolute; z-index:1; left:0; right:0; bottom:-1px; height:38%; pointer-events:none; background:linear-gradient(to bottom,rgba(199,182,195,0) 0%,rgba(199,182,195,.18) 38%,var(--lilac) 100%); }
-    .section-shell { padding:clamp(72px,9vw,140px) clamp(24px,7vw,110px); }
-    .eyebrow { margin:0 0 30px; font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
-    .intro-grid { display:grid; grid-template-columns:1.55fr .65fr; gap:clamp(50px,9vw,150px); align-items:start; }
-    h1,h2 { margin:0; font-weight:500; letter-spacing:-.055em; line-height:.95; }
-    h1 { max-width:900px; font-size:clamp(48px,7.5vw,116px); }
-    h2 { font-size:clamp(44px,6vw,88px); }
-    .intro-copy { max-width:370px; font-size:clamp(16px,1.6vw,21px); line-height:1.55; }
-    .availability { margin-top:32px; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
-    .availability span { display:inline-block; width:10px; height:10px; margin-right:8px; border-radius:50%; background:var(--yfa-media-available); box-shadow:0 0 0 3px rgba(47,174,78,.25); }
-    .numbers { padding-top:40px; }
-    .section-heading { display:grid; grid-template-columns:1fr; gap:16px; align-items:end; margin-bottom:60px; }
-    @media (min-width:761px) { .section-heading { grid-template-columns:1fr 1fr; } }
-    .total { width:100%; padding-top:20px; border-top:1px solid var(--ink); }
-    .total strong { display:block; font-size:52px; font-weight:500; letter-spacing:-.06em; }
-    @media (min-width:761px) { .total strong { font-size:76px; } }
-    .total span,.stat span { font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
-    .platform-grid { display:grid; grid-template-columns:repeat(3,1fr); }
-    .platform-card { min-height:560px; padding:clamp(28px,4vw,58px); display:flex; flex-direction:column; }
-    .dark-card { background:var(--ink); color:var(--paper); }
-    .light-card { background:var(--paper); }
-    .card-title { display:flex; justify-content:space-between; padding-bottom:24px; border-bottom:1px solid currentColor; font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
-    .stats-grid { display:grid; grid-template-columns:1fr 1fr; flex:1; }
-    .stat { display:flex; flex-direction:column; justify-content:center; border-bottom:1px solid currentColor; }
-    .stat:nth-child(odd) { border-right:1px solid currentColor; }
-    .stat:nth-child(even) { padding-left:clamp(20px,3vw,46px); }
-    .stat strong { font-size:clamp(42px,5vw,76px); font-weight:400; letter-spacing:-.06em; }
-    .stat span { margin-top:8px; }
-    .card-note { margin:24px 0 0; font-size:11px; letter-spacing:.07em; text-transform:uppercase; }
-    .audience { display:grid; grid-template-columns:.85fr 1.15fr; gap:clamp(50px,10vw,150px); border-top:1px solid var(--line); }
-    .audience-copy>p:last-child { max-width:460px; margin-top:36px; font-size:18px; line-height:1.6; }
-    .audience-data { padding-top:54px; }
-    .data-row { display:grid; grid-template-columns:95px 1fr 62px; gap:16px; align-items:center; margin-bottom:22px; font-size:12px; text-transform:uppercase; }
-    .data-row strong { text-align:right; }
-    .bar { height:8px; background:rgba(25,24,23,.13); }
-    .bar i { display:block; height:100%; background:var(--ink); }
-    .top-space { margin-top:55px; }
-    .country { display:flex; justify-content:space-between; margin-top:55px; padding-top:25px; border-top:1px solid var(--ink); font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
-    .contact { margin:0 clamp(12px,2vw,28px) 28px; padding:clamp(62px,8vw,120px); display:grid; grid-template-columns:1.15fr .65fr; gap:70px; align-items:end; background:var(--yfa-media-contact); color:var(--yfa-media-contact-text); }
-    .contact-copy { max-width:420px; font-size:18px; line-height:1.55; }
-    .form-trigger { width:100%; display:flex; justify-content:space-between; margin-top:42px; padding:18px 0; border:0; border-top:1px solid currentColor; border-bottom:1px solid currentColor; background:transparent; color:inherit; font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; transition:.2s ease; }
-    .form-trigger:hover,.form-trigger:focus-visible { padding-left:10px; padding-right:10px; background:rgba(242,233,228,.1); }
-    .form-trigger:focus-visible,.modal-close:focus-visible { outline:2px solid currentColor; outline-offset:4px; }
-    footer { padding:25px clamp(24px,4vw,68px); display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px 24px; border-top:1px solid var(--line); font-size:10px; letter-spacing:.15em; text-transform:uppercase; }
-    footer a { white-space:nowrap; }
-    dialog { width:min(720px,calc(100% - 56px)); max-height:calc(100vh - 56px); padding:0; border:0; overflow:hidden; background:var(--yfa-media-modal); color:var(--ink); box-shadow:0 30px 100px rgba(0,0,0,.4); }
-    dialog[open] { animation:modal-rise .28s ease-out; }
-    dialog::backdrop { background:rgba(15,12,11,.72); backdrop-filter:blur(8px); animation:modal-fade .2s ease-out; }
-    .modal-header { min-height:112px; padding:24px 30px; display:flex; align-items:center; justify-content:space-between; gap:24px; border-bottom:1px solid var(--line); }
-    .modal-header p { margin:0 0 6px; font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
-    .modal-header h3 { margin:0; font-size:clamp(28px,4vw,42px); font-weight:500; letter-spacing:-.045em; }
-    .modal-close { width:44px; height:44px; flex:0 0 auto; border:1px solid var(--ink); border-radius:50%; background:transparent; color:var(--ink); font-size:28px; line-height:1; cursor:pointer; }
-    .modal-close:hover { background:var(--ink); color:var(--paper); }
-    .form-frame-wrap { max-height:calc(100vh - 168px); overflow:auto; background:#fff; }
-    .form-frame-wrap iframe { display:block; width:100%; border:0; background:#fff; }
-    @keyframes modal-fade { from { opacity:0; } }
-    @keyframes modal-rise { from { opacity:0; transform:translateY(22px) scale(.985); } }
-    @keyframes banner-fade-in { from { opacity:0; transform:scale(1.025); } to { opacity:1; transform:scale(1); } }
-    .menu-toggle { display:none; }
-    @media (max-width:760px) {
-      .topbar { height:60px; position:relative; }
-      nav[aria-label="Main navigation"] { position:fixed; left:0; right:0; bottom:0; flex-direction:column; align-items:stretch; gap:0; background:var(--lilac); border-top:1px solid var(--line); box-shadow:0 -8px 30px rgba(0,0,0,.18); transform:translateY(100%); transition:transform .35s ease; z-index:20; }
-      nav[aria-label="Main navigation"].is-open { transform:translateY(0); }
-      nav[aria-label="Main navigation"] a { display:block; padding:16px 24px; border-bottom:1px solid var(--line); }
-      nav[aria-label="Main navigation"] a.nav-cta { border:0; }
-      .hero img { min-height:210px; object-position:center; }
-      .intro-grid,.audience,.contact { grid-template-columns:1fr; }
-      .intro-grid { gap:40px; }
-      .section-heading { grid-template-columns:1fr; }
-      .total { width:100%; }
-      .platform-grid { grid-template-columns:1fr; }
-      .platform-card { min-height:500px; }
-      .audience { gap:10px; }
-      .contact { gap:50px; }
-    }
-    @media (max-width:430px) {
-      footer { flex-direction:column; align-items:flex-start; gap:8px; }
-      .brand { font-size:10px; }
-      .nav-cta { font-size:9px; padding:9px; }
-      .hero img { min-height:170px; }
-      .section-shell { padding-left:20px; padding-right:20px; }
-      .platform-card { padding:25px 20px; min-height:460px; }
-      .stat strong { font-size:39px; }
-      .contact { margin:0 8px 8px; padding:55px 24px; }
-      dialog { width:100%; max-width:none; max-height:100dvh; height:100dvh; margin:0; }
-      .modal-header { min-height:92px; padding:18px 20px; }
-      .modal-close { width:40px; height:40px; }
-      .form-frame-wrap { max-height:calc(100dvh - 92px); }
-    }
-
-    [data-reveal] { opacity:0; transform:translateY(28px); transition:opacity .8s ease, transform .8s ease; }
-    [data-reveal].is-visible { opacity:1; transform:translateY(0); }
-    @media (prefers-reduced-motion:reduce) { [data-reveal] { opacity:1; transform:none; transition:none; } }
-  </style>
 </head>
-<body class="analytics-locked">
-  <header class="topbar">
-    <button class="brand" id="menuToggle" type="button" aria-expanded="false" aria-controls="mainNav">YOURFAVALIEN</button>
-    <nav aria-label="Main navigation" id="mainNav">
-      <a href="https://yourfavalien.com">Main Site</a>
-      <a href="#numbers">Numbers</a>
-      <a href="#audience">Audience</a>
-      <a class="nav-cta" href="#contact">Work together</a>
-    </nav>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="wordmark" href="#top"><span class="wordmark-mark">YFA</span><span><b>YOURFAVALIEN</b><small>Business Headquarters</small></span></a>
+    <nav class="desktop-nav" aria-label="Primary navigation"><a href="#departments">Departments</a><a href="#capabilities">Capabilities</a><a href="#profile">Profile</a><a href="#contact">Business desk</a></nav>
+    <div class="header-actions"><button class="text-button" data-open-dialog="signinDialog">Partner sign in</button><button class="button button-small" data-open-dialog="accessDialog">Request access</button></div>
+    <button class="menu-button" id="menuButton" aria-controls="mobileNav" aria-expanded="false"><span></span><span></span><span class="sr-only">Menu</span></button>
   </header>
+  <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation"><a href="#departments">Departments</a><a href="#capabilities">Capabilities</a><a href="#profile">Profile</a><a href="#contact">Business desk</a><button data-open-dialog="signinDialog">Partner sign in</button><button data-open-dialog="accessDialog">Request access</button></nav>
 
-  <main>
-    <section class="hero" id="top" aria-label="Let us work together">
-      <img src="yourfavalien-banner.png" alt="Let work together" data-yfa-image-slot="media-kit-banner">
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-media"><img src="yourfavalien-banner.png" alt=""><div class="hero-scrim"></div></div>
+      <div class="hero-content">
+        <p class="section-code">Office 01 / Professional Relations</p>
+        <h1>The business side of<br><em>YourFavAlien.</em></h1>
+        <p class="hero-copy">A private headquarters for selected partnerships, campaigns, modeling opportunities, representation, press, and creative work.</p>
+        <div class="hero-actions"><button class="button button-light" data-open-dialog="accessDialog">Enter business headquarters <span>↗</span></button><a class="button button-ghost" href="#departments">Choose a department <span>↓</span></a></div>
+        <div class="hero-status"><i></i><span>Currently reviewing select opportunities</span></div>
+      </div>
+      <div class="hero-index"><span>HQ</span><strong>01</strong></div>
     </section>
 
-    <section class="intro section-shell" style="padding-top:clamp(24px,3vw,48px)" data-reveal>
-      <p class="eyebrow">Creator media kit · 2026</p>
+    <section class="intro section" id="profile">
+      <div class="section-label"><span>Professional profile</span><span>02</span></div>
       <div class="intro-grid">
-        <h1>Beauty, lifestyle &amp; a little bit otherworldly.</h1>
-        <div class="intro-copy">
-          <p>Hi, I’m YourFavAlien—a beauty and lifestyle creator with a love for bold visuals, honest recommendations, and content that feels like a conversation with a friend. I share everyday finds, creative inspiration, and personality-led moments while building a welcoming community that celebrates individuality. I’m excited to partner with brands that value authenticity, creativity, and genuine connection.</p>
-          <p class="availability"><span></span> Available for brand partnerships</p>
+        <h2>Model. Digital creator.<br>Creative personality.</h2>
+        <div class="intro-copy"><p>YourFavAlien is the professional identity of Ayden Martinez—a personality-led creator and emerging model building visually distinct work across fashion, beauty, lifestyle, and entertainment.</p><p>This headquarters gives professional teams one focused place to evaluate fit, review capabilities, request private credentials, and begin serious conversations.</p><a class="inline-link" href="#capabilities">Review capabilities <span>↗</span></a></div>
+      </div>
+      <div class="profile-strip"><div><small>Based</small><strong>United States</strong></div><div><small>Primary fields</small><strong>Fashion · Beauty · Lifestyle</strong></div><div><small>Availability</small><strong>Selected opportunities</strong></div><div><small>Representation</small><strong>Open to inquiry</strong></div></div>
+    </section>
+
+    <section class="departments section" id="departments">
+      <div class="section-label"><span>Direct your inquiry</span><span>03</span></div>
+      <div class="departments-heading"><h2>Choose the right desk.</h2><p>Every professional inquiry reaches the correct part of headquarters from the beginning.</p></div>
+      <div class="department-list">
+        <button class="department" data-path="Brand or Partnership"><span class="department-number">01</span><span class="department-name">Brand &amp; Partnership</span><span class="department-copy">Campaigns, sponsorships, product features, ambassador work, and long-term partnerships.</span><span class="department-arrow">↗</span></button>
+        <button class="department" data-path="Agency or Representation"><span class="department-number">02</span><span class="department-name">Agency &amp; Representation</span><span class="department-copy">Modeling, creator management, talent representation, and professional development.</span><span class="department-arrow">↗</span></button>
+        <button class="department" data-path="Casting or Modeling"><span class="department-number">03</span><span class="department-name">Casting &amp; Modeling</span><span class="department-copy">Editorial, runway, e-commerce, campaigns, fittings, castings, and test shoots.</span><span class="department-arrow">↗</span></button>
+        <button class="department" data-path="Press, PR, or Events"><span class="department-number">04</span><span class="department-name">Press, PR &amp; Events</span><span class="department-copy">Interviews, launches, premieres, appearances, press opportunities, and hosted events.</span><span class="department-arrow">↗</span></button>
+        <button class="department" data-path="Creative Collaboration"><span class="department-number">05</span><span class="department-name">Creative Collaboration</span><span class="department-copy">Designers, photographers, stylists, filmmakers, artists, and concept-led projects.</span><span class="department-arrow">↗</span></button>
+      </div>
+    </section>
+
+    <section class="capabilities section" id="capabilities">
+      <div class="section-label light"><span>Capabilities</span><span>04</span></div>
+      <div class="capability-layout">
+        <div class="capability-sticky"><p class="kicker">Available for selected work</p><h2>Built to move between camera, campaign, and culture.</h2><button class="button button-light" data-open-dialog="inquiryDialog">Submit a project brief <span>↗</span></button></div>
+        <div class="capability-grid">
+          <article><span>01</span><h3>Sponsored content</h3><p>Personality-led short-form video, reels, photo carousels, product integration, and social storytelling.</p></article>
+          <article><span>02</span><h3>Campaign modeling</h3><p>Fashion, beauty, lifestyle, e-commerce, lookbook, editorial, runway, and branded campaign work.</p></article>
+          <article><span>03</span><h3>UGC &amp; creative assets</h3><p>Platform-native video, product photography, voiceover, testimonials, tutorials, and paid-media assets.</p></article>
+          <article><span>04</span><h3>Appearances &amp; events</h3><p>Launches, activations, hosting, red carpets, store openings, panels, and real-time event content.</p></article>
+          <article><span>05</span><h3>Ambassadorships</h3><p>Longer-term partnerships designed around recognizable presence, trust, and repeat storytelling.</p></article>
+          <article><span>06</span><h3>Creative collaborations</h3><p>Selective tests and projects with photographers, designers, stylists, filmmakers, and creative teams.</p></article>
         </div>
       </div>
     </section>
 
-    <section class="numbers section-shell analytics-experience is-loading" id="analyticsExperience" data-endpoint="https://yourfavalien-analytics.aydenmtz54.workers.dev/api/analytics" aria-busy="true" data-reveal>
-      <div class="analytics-private" id="analyticsPrivate" aria-hidden="true">
-        <div class="section-heading">
-          <div><p class="eyebrow">At a glance</p><h2>Small community.<br>Real attention.</h2></div>
-          <div class="total"><strong id="combinedFollowers">—</strong><span>combined followers</span></div>
-        </div>
-        <div class="analytics-toolbar" role="status" aria-live="polite">
-          <div class="update-copy"><span class="source-badge" id="sourceBadge">Demo data</span><span id="updateStatus">Loading analytics…</span><span class="update-time" id="updatedAt"></span></div>
-          <button class="refresh-button" id="refreshAnalytics" type="button"><span class="refresh-icon" aria-hidden="true">↻</span> Refresh</button>
-        </div>
-        <div class="analytics-notice" id="analyticsNotice" hidden></div>
-        <div class="platform-grid" data-analytics-content>
-          <article class="platform-card dark-card">
-            <div class="card-title"><span>TikTok</span><span>01</span></div>
-            <div class="stats-grid">
-              <div class="stat"><strong data-metric="tiktok.followers">—</strong><span>followers</span></div>
-              <div class="stat"><strong data-metric="tiktok.engagementRate">—</strong><span>engagement</span></div>
-              <div class="stat"><strong data-metric="tiktok.impressions">—</strong><span>impressions</span></div>
-              <div class="stat"><strong data-metric="tiktok.averageViews">—</strong><span>average views</span></div>
-            </div>
-            <p class="card-note" data-note="tiktok">Loading TikTok metrics…</p>
-          </article>
-          <article class="platform-card light-card">
-            <div class="card-title"><span>Instagram</span><span>02</span></div>
-            <div class="stats-grid">
-              <div class="stat"><strong data-metric="instagram.followers">—</strong><span>followers</span></div>
-              <div class="stat"><strong data-metric="instagram.engagementRate">—</strong><span>engagement</span></div>
-              <div class="stat"><strong data-metric="instagram.impressions">—</strong><span>impressions</span></div>
-              <div class="stat"><strong data-metric="instagram.reach30d">—</strong><span>30-day reach</span></div>
-            </div>
-            <p class="card-note" data-note="instagram">Loading Instagram metrics…</p>
-          </article>
-          <article class="platform-card dark-card">
-            <div class="card-title"><span>Facebook</span><span>03</span></div>
-            <div class="stats-grid">
-              <div class="stat"><strong data-metric="facebook.followers">—</strong><span>followers</span></div>
-              <div class="stat"><strong data-metric="facebook.engagementRate">—</strong><span>engagement</span></div>
-              <div class="stat"><strong data-metric="facebook.impressions">—</strong><span>impressions</span></div>
-              <div class="stat"><strong data-metric="facebook.reach30d">—</strong><span>30-day reach</span></div>
-            </div>
-            <p class="card-note" data-note="facebook">Loading Facebook metrics…</p>
-          </article>
-        </div>
-      </div>
-
-      <div class="analytics-gate" id="analyticsGate">
-        <div class="analytics-gate-card">
-          <p class="analytics-gate-kicker">Private creator analytics</p>
-          <h3>Unlock the media kit.</h3>
-          <p class="analytics-gate-copy">Tell me a little about who you are and what you’re working on to view my latest analytics.</p>
-          <form class="analytics-unlock-form" id="analyticsUnlockForm" action="https://formspree.io/f/xwlebavg" method="POST">
-            <div class="analytics-form-grid">
-              <label><span>First name</span><input type="text" name="first_name" autocomplete="given-name" required></label>
-              <label><span>Last name</span><input type="text" name="last_name" autocomplete="family-name" required></label>
-              <label class="analytics-field-wide"><span>Company / brand</span><input type="text" name="company" autocomplete="organization" required></label>
-              <label><span>Email address</span><input type="email" name="email" autocomplete="email" required></label>
-              <label><span>Phone number <em>optional</em></span><input type="tel" name="phone" autocomplete="tel"></label>
-              <label class="analytics-field-wide"><span>Message</span><textarea name="message" rows="4" required placeholder="Tell me about your brand, campaign, or partnership idea."></textarea></label>
-            </div>
-            <input type="text" name="_gotcha" class="analytics-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
-            <button class="analytics-unlock-button" id="analyticsUnlockButton" type="submit">Unlock Media Kit <span aria-hidden="true">↗</span></button>
-            <p class="analytics-form-status" id="analyticsFormStatus" role="status" aria-live="polite"></p>
-          </form>
-        </div>
+    <section class="private-preview section">
+      <div class="section-label"><span>Inside headquarters</span><span>05</span></div>
+      <div class="preview-heading"><div><p class="kicker">Approved partner access</p><h2>Everything needed to evaluate, present, and proceed.</h2></div><p>Private information stays organized behind approved access, giving professional teams a current and forwardable source of truth.</p></div>
+      <div class="preview-window">
+        <aside class="preview-sidebar"><div class="mini-brand">YFA <span>HQ</span></div><nav><b>Overview</b><span>Modeling</span><span>Partnerships</span><span>Audience</span><span>Selected work</span><span>Documents</span><span>Inquiry desk</span></nav><small>Private partner portal</small></aside>
+        <div class="preview-dashboard"><div class="preview-top"><div><small>Partner overview</small><h3>Welcome to headquarters.</h3></div><span class="verified">Approved access</span></div><div class="dashboard-cards"><article class="feature-card"><small>Professional profile</small><strong>Current credentials</strong><p>Positioning, location, availability, brand fit, and professional status.</p></article><article><small>Live analytics</small><strong>Audience data</strong><p>Reach, engagement, demographics, growth, and top-performing content.</p></article><article><small>Modeling</small><strong>Portfolio &amp; digitals</strong><p>Selected images, measurements, availability, and representation materials.</p></article><article><small>Documents</small><strong>Download center</strong><p>Forwardable media kit, capabilities, approved images, and campaign materials.</p></article></div></div>
+        <div class="preview-lock"><span class="lock-icon">⌁</span><p>Professional materials are reserved for approved partners.</p><button class="button button-light" data-open-dialog="accessDialog">Request access <span>↗</span></button></div>
       </div>
     </section>
 
-    <section class="audience section-shell" id="audience" data-reveal>
-      <div class="analytics-private audience-private" id="audiencePrivate" aria-hidden="true">
-        <div class="audience-copy">
-          <p class="eyebrow">TikTok audience</p>
-          <h2>Young &amp; engaged.</h2>
-          <p>My audience is concentrated in the United States, with a strong core of Gen Z and young millennial viewers.</p>
-        </div>
-        <div class="audience-data">
-          <div class="data-row"><span>Female</span><div class="bar"><i style="width:83.8%"></i></div><strong>83.8%</strong></div>
-          <div class="data-row"><span>Male</span><div class="bar"><i style="width:16.2%"></i></div><strong>16.2%</strong></div>
-          <div class="data-row top-space"><span>Age 18–24</span><div class="bar"><i style="width:52.5%"></i></div><strong>52.5%</strong></div>
-          <div class="data-row"><span>Age 25–34</span><div class="bar"><i style="width:30.2%"></i></div><strong>30.2%</strong></div>
-          <div class="country"><span>Top country</span><strong>United States · 79.2%</strong></div>
-        </div>
-      </div>
-    </section>
+    <section class="fit section"><div class="section-label"><span>Brand alignment</span><span>06</span></div><div class="fit-grid"><h2>Strongest fit.</h2><div class="fit-tags"><span>Fashion</span><span>Beauty</span><span>Lifestyle</span><span>Entertainment</span><span>Accessories</span><span>Fragrance</span><span>Technology</span><span>Creative brands</span></div></div></section>
 
-    <section class="contact" id="contact" data-reveal>
-      <div><p class="eyebrow">Partnerships</p><h2>Have an idea?<br>Let’s make it real.</h2></div>
-      <div class="contact-copy">
-        <p>Available for sponsored content, product features, gifted collaborations, and creative campaigns.</p>
-        <button class="form-trigger" id="openForm" type="button">Start a conversation <span aria-hidden="true">↗</span></button>
-      </div>
-    </section>
+    <section class="contact section" id="contact"><p class="section-code">Office 07 / Business Desk</p><div class="contact-grid"><h2>Bring the opportunity.<br><em>We’ll take it from here.</em></h2><div><p>For partnerships, representation, casting, press, events, and professional collaborations.</p><button class="button button-light" data-open-dialog="inquiryDialog">Start a business inquiry <span>↗</span></button><a class="business-email" href="mailto:business@yourfavalien.com">business@yourfavalien.com</a></div></div></section>
   </main>
 
-  <footer><span>YOURFAVALIEN</span><span><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Service</a></span><span>Media kit · 2026</span></footer>
+  <footer><div class="footer-brand"><strong>YOURFAVALIEN</strong><span>Business Headquarters</span></div><div><a href="https://yourfavalien.com">Public website</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div><span>Professional inquiries · 2026</span></footer>
 
-  <script>
-    (() => {
-      const storageKey = 'yfa-media-kit-unlocked';
-      const body = document.body;
-      const gate = document.getElementById('analyticsGate');
-      const form = document.getElementById('analyticsUnlockForm');
-      const button = document.getElementById('analyticsUnlockButton');
-      const status = document.getElementById('analyticsFormStatus');
-      const bottomFormButton = document.getElementById('openForm');
-      const privateSections = document.querySelectorAll('.analytics-private');
+  <dialog class="dialog" id="accessDialog">
+    <button class="dialog-close" data-close-dialog aria-label="Close">×</button><p class="dialog-code">Partner access / Application</p><h2>Request headquarters access.</h2><p class="dialog-intro">Access is reviewed for brands, agencies, casting professionals, PR teams, and approved creative partners.</p>
+    <form id="accessForm" action="https://formspree.io/f/xwlebavg" method="POST"><input type="hidden" name="form_type" value="Headquarters access request"><div class="form-grid">
+      <label><span>First name</span><input name="first_name" autocomplete="given-name" required></label><label><span>Last name</span><input name="last_name" autocomplete="family-name" required></label>
+      <label><span>Work email</span><input type="email" name="email" autocomplete="email" required></label><label><span>Company / organization</span><input name="company" autocomplete="organization" required></label>
+      <label><span>Your role</span><input name="role" required placeholder="Agent, brand manager, casting director…"></label><label><span>Department</span><select name="inquiry_type" id="accessPath" required><option value="">Select one</option><option>Brand or Partnership</option><option>Agency or Representation</option><option>Casting or Modeling</option><option>Press, PR, or Events</option><option>Creative Collaboration</option></select></label>
+      <label class="field-wide"><span>Reason for access</span><textarea name="message" rows="4" required placeholder="Tell us what you are working on and what you need to review."></textarea></label><label class="checkbox field-wide"><input type="checkbox" name="professional_confirmation" required><span>I confirm this request is for a legitimate professional opportunity.</span></label>
+    </div><input class="honeypot" name="_gotcha" tabindex="-1" autocomplete="off"><button class="button button-dark submit-button">Submit access request <span>↗</span></button><p class="form-status" role="status"></p></form>
+  </dialog>
 
-      function unlockAnalytics({ remember = true } = {}) {
-        body.classList.remove('analytics-locked', 'analytics-inquiry-open');
-        body.classList.add('analytics-unlocked');
-        privateSections.forEach(section => section.setAttribute('aria-hidden', 'false'));
-        if (gate) gate.setAttribute('aria-hidden', 'true');
-        if (remember) {
-          try { sessionStorage.setItem(storageKey, '1'); } catch (error) {}
-        }
-      }
+  <dialog class="dialog dialog-compact" id="signinDialog">
+    <button class="dialog-close" data-close-dialog aria-label="Close">×</button><p class="dialog-code">Approved partners / Secure entry</p><h2>Partner sign in.</h2><p class="dialog-intro">Approved partners enter with their professional email. Cloudflare sends a secure, single-use code—no password is required.</p>
+    <a class="button button-dark submit-button" href="/login">Continue to secure sign in <span>↗</span></a>
+    <div class="dialog-foot"><span>Not approved yet?</span><button data-switch-dialog="accessDialog">Request professional access</button></div>
+  </dialog>
 
-      try {
-        if (sessionStorage.getItem(storageKey) === '1') unlockAnalytics({ remember: false });
-      } catch (error) {}
+  <dialog class="dialog" id="inquiryDialog">
+    <button class="dialog-close" data-close-dialog aria-label="Close">×</button><p class="dialog-code">Business desk / New brief</p><h2>Start a professional inquiry.</h2><p class="dialog-intro">An account is not required. Include as much project detail as possible.</p>
+    <form id="inquiryForm" action="https://formspree.io/f/xwlebavg" method="POST"><input type="hidden" name="form_type" value="Business inquiry"><div class="form-grid">
+      <label><span>Contact name</span><input name="contact_name" autocomplete="name" required></label><label><span>Work email</span><input type="email" name="email" autocomplete="email" required></label><label><span>Company / organization</span><input name="company" autocomplete="organization" required></label>
+      <label><span>Inquiry type</span><select name="inquiry_type" id="inquiryPath" required><option value="">Select one</option><option>Brand or Partnership</option><option>Agency or Representation</option><option>Casting or Modeling</option><option>Press, PR, or Events</option><option>Creative Collaboration</option></select></label>
+      <label><span>Campaign / project</span><input name="project_name" required></label><label><span>Budget range</span><select name="budget"><option>Prefer not to say</option><option>Under $500</option><option>$500–$1,499</option><option>$1,500–$4,999</option><option>$5,000–$9,999</option><option>$10,000+</option><option>Representation / not applicable</option></select></label>
+      <label><span>Proposed dates</span><input name="dates" placeholder="Dates or general timeframe"></label><label><span>Usage</span><input name="usage_rights" placeholder="Organic, paid, print, digital…"></label><label class="field-wide"><span>Project brief / deliverables</span><textarea name="message" rows="5" required></textarea></label>
+    </div><input class="honeypot" name="_gotcha" tabindex="-1"><button class="button button-dark submit-button">Send to business desk <span>↗</span></button><p class="form-status" role="status"></p></form>
+  </dialog>
 
-      if (bottomFormButton && gate) {
-        bottomFormButton.addEventListener('click', () => {
-          body.classList.add('analytics-inquiry-open');
-          gate.setAttribute('aria-hidden', 'false');
-          gate.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          window.setTimeout(() => {
-            const firstField = form?.querySelector('input:not([type="hidden"]), textarea');
-            if (firstField) firstField.focus({ preventScroll: true });
-          }, 650);
-        });
-      }
+  <section class="portal" id="portal" hidden>
+    <aside class="portal-sidebar"><div class="portal-brand"><b>YFA</b><span>Business<br>Headquarters</span></div><nav><button class="admin-only" data-portal-view="admin">Admin control room</button><button class="active" data-portal-view="overview">Overview</button><button data-portal-view="modeling">Modeling</button><button data-portal-view="partnerships">Partnerships</button><button data-portal-view="audience">Audience</button><button data-portal-view="work">Selected work</button><button data-portal-view="documents">Documents</button><button data-portal-view="inquiries">Inquiry desk</button></nav><a class="portal-signout" href="https://partners.yourfavalien.site/cdn-cgi/access/logout">Sign out</a></aside>
+    <div class="portal-main"><header><div><small>Private partner portal</small><strong id="portalCompany">Approved professional</strong></div><span class="verified">Approved access</span></header>
+      <div class="portal-view admin-only" data-view="admin" hidden><p class="section-code">Owner office / Administration</p><h2>Your control room.</h2><p class="portal-lead">Review access requests, approve professional accounts, and manage incoming business opportunities.</p><div class="admin-summary" id="adminSummary"><article><small>Access requests</small><strong>—</strong></article><article><small>New inquiries</small><strong>—</strong></article><article><small>Active partners</small><strong>—</strong></article></div><div class="admin-columns"><section><div class="admin-section-head"><h3>Pending access</h3><button class="text-button" data-admin-refresh>Refresh</button></div><div id="adminAccessRequests" class="admin-feed"><p>Loading requests…</p></div></section><section><div class="admin-section-head"><h3>Business inquiries</h3></div><div id="adminInquiries" class="admin-feed"><p>Loading inquiries…</p></div></section></div></div>
+      <div class="portal-view" data-view="overview"><p class="section-code">Headquarters / Overview</p><h2>Welcome to the business side of YourFavAlien.</h2><p class="portal-lead">Review current materials, evaluate partnership fit, and send opportunities directly to the right desk.</p><div class="portal-card-grid"><article><small>Professional profile</small><h3>Ayden Martinez</h3><p>Model · Digital creator · Creative personality</p><button data-portal-view="modeling">View credentials →</button></article><article><small>Current status</small><h3>Available selectively</h3><p>Reviewing campaigns, representation, casting, and creative opportunities.</p><button data-open-dialog="inquiryDialog">Submit opportunity →</button></article><article><small>Audience</small><h3>Current analytics</h3><p>Live platform metrics and demographic insights.</p><button data-portal-view="audience">Review analytics →</button></article><article><small>Documents</small><h3>Partner resources</h3><p>Media kit, professional materials, and approved assets.</p><button data-portal-view="documents">Open documents →</button></article></div></div>
+      <div class="portal-view" data-view="modeling" hidden><p class="section-code">Headquarters / Modeling</p><h2>Modeling credentials.</h2><div class="empty-state"><span>Portfolio development in progress</span><p>Digitals, measurements, selected work, availability, and representation information will live here.</p></div></div>
+      <div class="portal-view" data-view="partnerships" hidden><p class="section-code">Headquarters / Partnerships</p><h2>Campaign capabilities.</h2><div class="portal-list"><span>Sponsored short-form video</span><span>Social campaign content</span><span>Product features</span><span>UGC and paid-media assets</span><span>Event appearances</span><span>Ambassador partnerships</span></div></div>
+      <div class="portal-view" data-view="audience" hidden><p class="section-code">Headquarters / Audience</p><h2>Audience intelligence.</h2><div id="portalAnalytics" class="analytics-panel"><p>Loading current analytics…</p></div></div>
+      <div class="portal-view" data-view="work" hidden><p class="section-code">Headquarters / Selected work</p><h2>Work worth remembering.</h2><div class="empty-state"><span>Curated portfolio coming next</span><p>This area is reserved for the strongest editorial, modeling, campaign, and creator work.</p></div></div>
+      <div class="portal-view" data-view="documents" hidden><p class="section-code">Headquarters / Documents</p><h2>Partner download center.</h2><div class="document-list"><div><span>Media kit PDF</span><small>In preparation</small></div><div><span>Modeling portfolio</span><small>In preparation</small></div><div><span>Campaign capabilities</span><small>In preparation</small></div><div><span>Approved imagery</span><small>Available by request</small></div></div></div>
+      <div class="portal-view" data-view="inquiries" hidden><p class="section-code">Headquarters / Inquiry desk</p><h2>Bring us the brief.</h2><p class="portal-lead">Send a new opportunity directly to the business desk.</p><button class="button button-dark" data-open-dialog="inquiryDialog">Start a business inquiry <span>↗</span></button></div>
+    </div>
+  </section>
 
-      if (!form) return;
-
-      form.addEventListener('submit', async event => {
-        event.preventDefault();
-        if (!form.reportValidity()) return;
-
-        button.disabled = true;
-        const originalButton = button.innerHTML;
-        button.textContent = 'Unlocking…';
-        status.textContent = '';
-        status.classList.remove('is-error', 'is-success');
-
-        try {
-          const response = await fetch(form.action, {
-            method: 'POST',
-            body: new FormData(form),
-            headers: { 'Accept': 'application/json' }
-          });
-          if (!response.ok) throw new Error('Form submission failed');
-
-          status.textContent = 'Thanks — your media kit is unlocked.';
-          status.classList.add('is-success');
-          form.reset();
-          window.setTimeout(() => unlockAnalytics(), 450);
-        } catch (error) {
-          status.textContent = 'Something went wrong. Please check your connection and try again.';
-          status.classList.add('is-error');
-          button.disabled = false;
-          button.innerHTML = originalButton;
-        }
-      });
-    })();
-  </script>
-  <script src="analytics.js" defer></script>
-
-  <script>
-    (() => {
-      const toggle = document.getElementById('menuToggle');
-      const nav = document.getElementById('mainNav');
-      if (!toggle || !nav) return;
-      toggle.addEventListener('click', () => {
-        const isOpen = nav.classList.toggle('is-open');
-        toggle.setAttribute('aria-expanded', String(isOpen));
-      });
-      nav.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-          nav.classList.remove('is-open');
-          toggle.setAttribute('aria-expanded', 'false');
-        });
-      });
-    })();
-  </script>
-  <script>
-    (() => {
-      const items = document.querySelectorAll('[data-reveal]');
-      if (!('IntersectionObserver' in window) || !items.length) {
-        items.forEach(el => el.classList.add('is-visible'));
-        return;
-      }
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.15 });
-      items.forEach(el => observer.observe(el));
-    })();
-  </script>
-
-  <!-- YourFavAlien Mothership image manager -->
-  <script src="mothership-config.js"></script>
-  <script src="mothership-theme.js"></script>
-  <script src="mothership-images.js"></script>
-
+  <script src="portal.js" defer></script>
 </body>
 </html>
