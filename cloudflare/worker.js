@@ -209,9 +209,10 @@ async function saveSiteContent(request, env) {
   const entries = Object.entries(data.content || {}).filter(([key, value]) => EDITABLE_SETTINGS.has(key) && typeof value === 'string');
   if (!entries.length) return json({ error: 'No editable content was supplied.' }, 400);
   for (const [key, value] of entries) {
-    const limit = key.endsWith('_image') ? 1_500_000 : 4000;
+    const isImage = key.endsWith('_image') || key.endsWith('_logo');
+    const limit = isImage ? 1_500_000 : 4000;
     if (value.length > limit) return json({ error: `${key.replaceAll('_', ' ')} is too large.` }, 400);
-    if (key.endsWith('_image') && value && !/^data:image\/(?:jpeg|png|webp);base64,/i.test(value)) return json({ error: 'Unsupported image format.' }, 400);
+    if (isImage && value && !/^data:image\/(?:jpeg|png|webp);base64,/i.test(value)) return json({ error: 'Unsupported image format.' }, 400);
   }
   await env.DB.batch(entries.map(([key, value]) => env.DB.prepare("INSERT INTO site_settings (setting_key, setting_value, updated_by, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value, updated_by=excluded.updated_by, updated_at=CURRENT_TIMESTAMP").bind(key, value.trim(), auth.email)));
   await env.DB.prepare("INSERT INTO audit_log (id, actor_email, action, entity_type, details) VALUES (?, ?, 'updated', 'site_content', ?)").bind(crypto.randomUUID(), auth.email, JSON.stringify(entries.map(([key]) => key))).run();
