@@ -5,6 +5,14 @@
   const mobileNav = document.getElementById('mobileNav');
   const menuButton = document.getElementById('menuButton');
 
+  const editorGrid = document.querySelector('#contentEditor .editor-grid');
+  if (editorGrid && !document.querySelector('#contentEditor [name="availability_status"]')) {
+    const profileTitle = document.querySelector('#contentEditor [name="profile_title"]')?.closest('label');
+    const statusField = document.createElement('label');
+    statusField.innerHTML = '<span>Opportunity status</span><input name="availability_status" maxlength="120" list="availabilityOptions" placeholder="Accepting selected opportunities"><datalist id="availabilityOptions"><option value="Accepting all opportunities"><option value="Accepting selected opportunities"><option value="Currently reviewing select opportunities"><option value="Open to partnerships and representation"><option value="Bookings temporarily paused"></datalist><small>This appears beneath the homepage buttons.</small>';
+    editorGrid.insertBefore(statusField, profileTitle || null);
+  }
+
   function applySiteContent(content = {}) {
     Object.entries(content).forEach(([key, value]) => {
       if (!value) return;
@@ -200,7 +208,7 @@
       editableContent = { ...editableContent, ...(data.content || {}) };
       const editor = document.getElementById('contentEditor');
       if (editor) {
-        ['hero_title','hero_copy','profile_title','profile_copy','business_email'].forEach(key => { if (editor.elements[key]) editor.elements[key].value = editableContent[key] || document.querySelector(`[data-content-text="${key}"],[data-content-email="${key}"]`)?.textContent?.trim() || ''; });
+        ['hero_title','hero_copy','availability_status','profile_title','profile_copy','business_email'].forEach(key => { if (editor.elements[key]) editor.elements[key].value = editableContent[key] || document.querySelector(`[data-content-text="${key}"],[data-content-email="${key}"]`)?.textContent?.trim() || ''; });
         if (editableContent.hero_image) document.getElementById('heroImagePreview').src = editableContent.hero_image;
         if (editableContent.login_image) document.getElementById('loginImagePreview').src = editableContent.login_image;
       }
@@ -276,7 +284,7 @@
       button.disabled = true; status.textContent = 'Publishing…';
       try {
         const content = {};
-        ['hero_title','hero_copy','profile_title','profile_copy','business_email'].forEach(key => { content[key] = contentEditor.elements[key].value.trim(); });
+        ['hero_title','hero_copy','availability_status','profile_title','profile_copy','business_email'].forEach(key => { content[key] = contentEditor.elements[key].value.trim(); });
         const heroFile = contentEditor.elements.hero_image_upload.files[0];
         const loginFile = contentEditor.elements.login_image_upload.files[0];
         if (heroFile) content.hero_image = await optimizeImage(heroFile);

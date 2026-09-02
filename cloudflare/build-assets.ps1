@@ -9,6 +9,7 @@ $assets = @(
   'login.html',
   'styles.css',
   'portal.js',
+  'business-guide.js',
   'privacy.html',
   'terms.html',
   'yourfavalien-banner.png',
