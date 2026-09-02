@@ -12,6 +12,10 @@
     {
       "pattern": "partners.yourfavalien.site",
       "custom_domain": true
+    },
+    {
+      "pattern": "xilo.yourfavalien.site",
+      "custom_domain": true
     }
   ],
   "assets": {
@@ -25,5 +29,8 @@
       "database_name": "yourfavalien-business-hq",
       "database_id": "feda5b0b-523d-4295-b49c-11337a7fd9d8"
     }
-  ]
+  ],
+  "ai": {
+    "binding": "AI"
+  }
 }

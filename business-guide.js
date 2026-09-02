@@ -2,7 +2,7 @@
   if (window.__YFA_BUSINESS_GUIDE__) return;
   window.__YFA_BUSINESS_GUIDE__ = true;
 
-  const endpoint = 'https://xilo.yourfavalien.com/api/chat';
+  const endpoint = 'https://xilo.yourfavalien.site/api/chat';
   const root = document.createElement('aside');
   root.className = 'business-guide';
   root.setAttribute('aria-label', 'Xylo business headquarters guide');

@@ -123,3 +123,31 @@ CREATE TABLE IF NOT EXISTS site_settings (
   updated_by TEXT,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS xilo_training (
+  id TEXT PRIMARY KEY,
+  training_json TEXT NOT NULL DEFAULT '{}',
+  updated_by TEXT,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS xilo_conversations (
+  id TEXT PRIMARY KEY,
+  visitor_token TEXT NOT NULL UNIQUE,
+  mode TEXT NOT NULL DEFAULT 'bot',
+  page_url TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_message_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS xilo_messages (
+  id TEXT PRIMARY KEY,
+  conversation_id TEXT NOT NULL,
+  sender TEXT NOT NULL,
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY(conversation_id) REFERENCES xilo_conversations(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_xilo_messages_conversation ON xilo_messages(conversation_id, created_at);

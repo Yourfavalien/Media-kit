@@ -157,12 +157,90 @@ async function partnerAnalytics(request, env) {
 }
 
 async function requireAdmin(request, env) {
-  if (new URL(request.url).hostname !== 'partners.yourfavalien.site') return { error: json({ error: 'Administrator access requires the protected headquarters.' }, 403) };
+  if (!['partners.yourfavalien.site','xilo.yourfavalien.site'].includes(new URL(request.url).hostname)) return { error: json({ error: 'Administrator access requires a protected control center.' }, 403) };
   const email = professionalEmail(request);
   if (!email) return { error: json({ error: 'Authentication required.' }, 401) };
   const partner = await env.DB.prepare("SELECT access_level, status FROM partners WHERE email = ? LIMIT 1").bind(email).first();
-  if (!partner || partner.status !== 'active' || partner.access_level !== 'admin') return { error: json({ error: 'Administrator access required.' }, 403) };
+  if (!partner || partner.status !== 'active' || !['admin','owner'].includes(partner.access_level)) return { error: json({ error: 'Administrator access required.' }, 403) };
   return { email };
+}
+
+async function xiloTraining(request, env) {
+  const auth = await requireAdmin(request, env); if (auth.error) return auth.error;
+  if (request.method === 'GET') {
+    const row = await env.DB.prepare("SELECT training_json, updated_at FROM xilo_training WHERE id='primary'").first();
+    return json({ training: row ? JSON.parse(row.training_json || '{}') : {}, updatedAt: row?.updated_at || null });
+  }
+  const data = await readJson(request);
+  const training = data.training && typeof data.training === 'object' ? data.training : null;
+  if (!training) return json({ error: 'Training is required.' }, 400);
+  const value = JSON.stringify(training);
+  if (value.length > 70000) return json({ error: 'Training is too large.' }, 400);
+  await env.DB.prepare("INSERT INTO xilo_training (id,training_json,updated_by,updated_at) VALUES ('primary',?,?,CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET training_json=excluded.training_json,updated_by=excluded.updated_by,updated_at=CURRENT_TIMESTAMP").bind(value, auth.email).run();
+  return json({ message: 'Xylo controls saved.' });
+}
+
+async function xiloAdminConversations(request, env, id, action) {
+  const auth = await requireAdmin(request, env); if (auth.error) return auth.error;
+  if (!id) {
+    const rows = await env.DB.prepare("SELECT id,mode,page_url,created_at,last_message_at FROM xilo_conversations ORDER BY last_message_at DESC LIMIT 100").all();
+    return json({ conversations: rows.results || [] });
+  }
+  if (!action && request.method === 'GET') {
+    const rows = await env.DB.prepare("SELECT id,sender,body,created_at FROM xilo_messages WHERE conversation_id=? ORDER BY created_at").bind(id).all();
+    return json({ messages: rows.results || [] });
+  }
+  const data = await readJson(request);
+  if (action === 'mode') {
+    const mode = data.mode === 'human' ? 'human' : 'bot';
+    await env.DB.prepare("UPDATE xilo_conversations SET mode=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(mode,id).run();
+    return json({ mode });
+  }
+  if (action === 'reply') {
+    const body = clean(data.body, 4000); if (!body) return json({ error: 'Reply is empty.' }, 400);
+    await env.DB.batch([
+      env.DB.prepare("INSERT INTO xilo_messages (id,conversation_id,sender,body) VALUES (?,?, 'ayden',?)").bind(crypto.randomUUID(),id,body),
+      env.DB.prepare("UPDATE xilo_conversations SET mode='human',last_message_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(id)
+    ]);
+    return json({ message: 'Reply sent.' });
+  }
+  return json({ error: 'Not found.' }, 404);
+}
+
+async function xiloChat(request, env) {
+  const data = await readJson(request);
+  const messages = Array.isArray(data.messages) ? data.messages.slice(-10).filter(m => ['user','assistant'].includes(m.role) && typeof m.content === 'string') : [];
+  if (!messages.length || messages.at(-1).role !== 'user') return json({ error: 'Add a message for Xylo.' }, 400);
+  const row = await env.DB.prepare("SELECT training_json FROM xilo_training WHERE id='primary'").first();
+  const training = row ? JSON.parse(row.training_json || '{}') : {};
+  const instructions = "You are Xylo, the official YourFavAlien website guide. Be warm, concise, accurate, and professional. Never invent prices, bookings, availability, private information, statistics, or promises. Route business opportunities to the Business Headquarters. Owner-approved controls follow: " + JSON.stringify(training);
+  let conversation = null;
+  if (!data.testMode) {
+    if (data.conversationId && data.visitorToken) conversation = await env.DB.prepare("SELECT id,visitor_token,mode FROM xilo_conversations WHERE id=? AND visitor_token=?").bind(clean(data.conversationId,80),clean(data.visitorToken,160)).first();
+    if (!conversation) {
+      conversation={id:crypto.randomUUID(),visitor_token:(crypto.randomUUID()+crypto.randomUUID()).replaceAll('-',''),mode:'bot'};
+      await env.DB.prepare("INSERT INTO xilo_conversations (id,visitor_token,mode,page_url) VALUES (?,?, 'bot',?)").bind(conversation.id,conversation.visitor_token,clean(data.pageUrl,500)).run();
+    }
+    await env.DB.prepare("INSERT INTO xilo_messages (id,conversation_id,sender,body) VALUES (?,?, 'visitor',?)").bind(crypto.randomUUID(),conversation.id,clean(messages.at(-1).content,1200)).run();
+    if (conversation.mode === 'human') return json({ reply:null,mode:'human',conversationId:conversation.id,visitorToken:conversation.visitor_token });
+  }
+  if (!env.AI) return json({ error: 'Xylo AI is not connected.' }, 503);
+  const output = await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{messages:[{role:'system',content:instructions},...messages],max_tokens:700,temperature:.2});
+  const reply = typeof output?.response === 'string' ? output.response.trim() : '';
+  if (!reply) return json({ error: 'Xylo could not answer right now.' }, 502);
+  if (conversation) await env.DB.batch([
+    env.DB.prepare("INSERT INTO xilo_messages (id,conversation_id,sender,body) VALUES (?,?, 'xilo',?)").bind(crypto.randomUUID(),conversation.id,reply),
+    env.DB.prepare("UPDATE xilo_conversations SET last_message_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(conversation.id)
+  ]);
+  return json({ reply,mode:'bot',...(conversation?{conversationId:conversation.id,visitorToken:conversation.visitor_token}:{}) });
+}
+
+async function xiloPoll(request, env, id) {
+  const token = new URL(request.url).searchParams.get('token') || '';
+  const c = await env.DB.prepare("SELECT mode FROM xilo_conversations WHERE id=? AND visitor_token=?").bind(id,token).first();
+  if (!c) return json({ error: 'Conversation not found.' },404);
+  const rows = await env.DB.prepare("SELECT id,sender,body,created_at FROM xilo_messages WHERE conversation_id=? AND sender='ayden' ORDER BY created_at").bind(id).all();
+  return json({ mode:c.mode,messages:rows.results||[] });
 }
 
 async function adminDashboard(request, env) {
@@ -286,6 +364,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const isPartnerHost = url.hostname === 'partners.yourfavalien.site';
+    const isXiloHost = url.hostname === 'xilo.yourfavalien.site';
     const isStaticAsset = /\.(?:css|js|png|jpe?g|gif|webp|svg|ico|txt|pdf|woff2?)$/i.test(url.pathname);
     try {
       if (request.method === 'OPTIONS' && url.pathname.startsWith('/api/')) {
@@ -308,6 +387,23 @@ export default {
       }
       if (url.pathname === '/api/content' && request.method === 'GET') {
         return publicContent(env);
+      }
+      if (url.pathname === '/api/chat' && request.method === 'POST') {
+        return xiloChat(request, env);
+      }
+      const xiloPollMatch = url.pathname.match(/^\/api\/chat\/([^/]+)\/messages$/);
+      if (xiloPollMatch && request.method === 'GET') {
+        return xiloPoll(request, env, decodeURIComponent(xiloPollMatch[1]));
+      }
+      if (url.pathname === '/api/xilo/admin/training' && ['GET','POST'].includes(request.method)) {
+        return xiloTraining(request, env);
+      }
+      if (url.pathname === '/api/xilo/admin/conversations' && request.method === 'GET') {
+        return xiloAdminConversations(request, env);
+      }
+      const xiloAdminMatch = url.pathname.match(/^\/api\/xilo\/admin\/conversations\/([^/]+)(?:\/(mode|reply))?$/);
+      if (xiloAdminMatch && ['GET','POST'].includes(request.method)) {
+        return xiloAdminConversations(request, env, decodeURIComponent(xiloAdminMatch[1]), xiloAdminMatch[2]);
       }
       if (url.pathname === '/api/admin/dashboard' && request.method === 'GET') {
         return adminDashboard(request, env);
@@ -338,6 +434,9 @@ export default {
       }
       if (isPartnerHost) {
         return portalResponse(request, env);
+      }
+      if (isXiloHost && !isStaticAsset) {
+        return env.ASSETS.fetch(new Request(new URL('/xilo-control.html', request.url), request));
       }
       if (url.pathname.startsWith('/api/')) return json({ error: 'Not found.' }, 404);
       return env.ASSETS.fetch(request);
