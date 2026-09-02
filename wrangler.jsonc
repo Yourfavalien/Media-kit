@@ -14,8 +14,8 @@
       "custom_domain": true
     },
     {
-      "pattern": "xilo.yourfavalien.site",
-      "custom_domain": true
+      "pattern": "xilo.yourfavalien.site/*",
+      "zone_name": "yourfavalien.site"
     }
   ],
   "assets": {

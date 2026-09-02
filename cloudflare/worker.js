@@ -436,7 +436,7 @@ export default {
         return portalResponse(request, env);
       }
       if (isXiloHost && !isStaticAsset) {
-        return env.ASSETS.fetch(new Request(new URL('/xilo-control.html', request.url), request));
+        return env.ASSETS.fetch(new Request(new URL('/xilo-control', request.url), request));
       }
       if (url.pathname.startsWith('/api/')) return json({ error: 'Not found.' }, 404);
       return env.ASSETS.fetch(request);
