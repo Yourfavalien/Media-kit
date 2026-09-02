@@ -12,12 +12,12 @@
     statusField.innerHTML = '<span>Opportunity status</span><select name="availability_status"><option value="Accepting all opportunities">🟢 Green — accepting all opportunities</option><option value="Currently reviewing select opportunities">🟡 Yellow — reviewing select opportunities</option><option value="Availability limited — inquiries still welcome">🔴 Red — availability limited, but inquiries are welcome</option></select><small>Choose a status and the homepage light changes automatically.</small>';
     editorGrid.insertBefore(statusField, profileTitle || null);
   }
-  const headerLogo = document.querySelector('.site-header .wordmark-mark img');
-  if (headerLogo) headerLogo.dataset.contentImage = 'header_logo';
+  const headquartersLogos = document.querySelectorAll('img[src$="yourfavalien-ufo-clean.png"]');
+  headquartersLogos.forEach(logo => { logo.dataset.contentImage = 'header_logo'; });
   if (editorGrid && !document.querySelector('#contentEditor [name="header_logo_upload"]')) {
     const logoField = document.createElement('label');
     logoField.className = 'image-editor';
-    logoField.innerHTML = '<span>Header spaceship logo</span><img id="headerLogoPreview" src="yourfavalien-ufo-clean.png" alt="Header logo preview"><input name="header_logo_upload" type="file" accept="image/jpeg,image/png,image/webp"><small>Changes only the small logo beside “YOURFAVALIEN / Business Headquarters” in the black top bar. The words stay the same.</small>';
+    logoField.innerHTML = '<span>Business Headquarters logo</span><img id="headerLogoPreview" src="yourfavalien-ufo-clean.png" alt="Business Headquarters logo preview"><input name="header_logo_upload" type="file" accept="image/jpeg,image/png,image/webp"><small>Updates the logo across the Headquarters header, secure-entry page, previews, partner portal, and admin area. The words stay the same.</small>';
     editorGrid.appendChild(logoField);
   }
 
