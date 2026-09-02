@@ -12,6 +12,7 @@ $assets = @(
   'privacy.html',
   'terms.html',
   'yourfavalien-banner.png',
+  'yfa-headquarters-logo.svg',
   'tiktok7qIOkJ4v4PNPOojBvJIWeoaKlbh6VJBE.txt',
   '.assetsignore'
 )
