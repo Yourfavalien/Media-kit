@@ -111,6 +111,7 @@
 
   const accessForm = document.getElementById('accessForm');
   const inquiryForm = document.getElementById('inquiryForm');
+  const portalInquiryForm = document.getElementById('portalInquiryForm');
   if (accessForm) accessForm.addEventListener('submit', event => {
     event.preventDefault();
     submitForm(accessForm, `${apiBase}/api/access-requests`);
@@ -118,6 +119,10 @@
   if (inquiryForm) inquiryForm.addEventListener('submit', event => {
     event.preventDefault();
     submitForm(inquiryForm, `${apiBase}/api/inquiries`);
+  });
+  if (portalInquiryForm) portalInquiryForm.addEventListener('submit', event => {
+    event.preventDefault();
+    submitForm(portalInquiryForm, '/api/inquiries');
   });
 
   document.querySelectorAll('[data-portal-view]').forEach(button => {
