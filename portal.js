@@ -21,13 +21,51 @@
     editorGrid.appendChild(logoField);
   }
 
+  const partnerTextBindings = {
+    partner_overview_title: '[data-view="overview"] h2', partner_overview_intro: '[data-view="overview"] .portal-lead',
+    modeling_title: '[data-view="modeling"] h2', modeling_talent: '[data-view="modeling"] .credential-grid article:nth-child(1) strong', modeling_talent_copy: '[data-view="modeling"] .credential-grid article:nth-child(1) p', modeling_fields: '[data-view="modeling"] .credential-grid article:nth-child(2) strong', modeling_fields_copy: '[data-view="modeling"] .credential-grid article:nth-child(2) p', modeling_location: '[data-view="modeling"] .credential-grid article:nth-child(3) strong', modeling_location_copy: '[data-view="modeling"] .credential-grid article:nth-child(3) p', modeling_representation: '[data-view="modeling"] .credential-grid article:nth-child(4) strong', modeling_representation_copy: '[data-view="modeling"] .credential-grid article:nth-child(4) p',
+    partnerships_title: '[data-view="partnerships"] h2', socials_title: '[data-view="socials"] h2', socials_intro: '[data-view="socials"] .portal-lead', audience_title: '[data-view="audience"] h2', selected_work_title: '[data-view="work"] h2', selected_work_intro: '[data-view="work"] .portal-lead', resources_title: '[data-view="documents"] h2', resources_intro: '[data-view="documents"] .portal-lead', collaboration_title: '[data-view="inquiries"] h2', collaboration_intro: '[data-view="inquiries"] .portal-lead'
+  };
+  Object.entries(partnerTextBindings).forEach(([key, selector]) => { const element = document.querySelector(selector); if (element) element.dataset.contentText = key; });
+  const partnerUrlBindings = {
+    tiktok_url: '[data-view="socials"] a[href*="tiktok.com"]', instagram_url: '[data-view="socials"] a[href*="instagram.com"]', snapchat_url: '[data-view="socials"] a[href*="snapchat.com"]', facebook_url: '[data-view="socials"] a[href*="facebook.com"]', official_site_url: '[data-view="socials"] a[href*="yourfavalien.com"]'
+  };
+  Object.entries(partnerUrlBindings).forEach(([key, selector]) => { const element = document.querySelector(selector); if (element) element.dataset.contentUrl = key; });
+  const partnerContentKeys = [...Object.keys(partnerTextBindings), ...Object.keys(partnerUrlBindings), 'partnership_capabilities'];
+
+  const adminTabs = document.querySelector('.admin-tabs');
+  const editorWorkspace = document.querySelector('[data-admin-workspace="editor"]');
+  if (adminTabs && editorWorkspace && !document.querySelector('[data-admin-panel="partner-content"]')) {
+    const tab = document.createElement('button');
+    tab.type = 'button'; tab.dataset.adminPanel = 'partner-content'; tab.textContent = 'Partner dashboard';
+    adminTabs.insertBefore(tab, adminTabs.querySelector('[data-admin-panel="portfolio"]'));
+    const workspace = document.createElement('section');
+    workspace.className = 'admin-workspace'; workspace.dataset.adminWorkspace = 'partner-content'; workspace.hidden = true;
+    workspace.innerHTML = `<div class="workspace-intro"><span>02</span><div><h3>Edit the partner dashboard</h3><p>Everything below controls information approved partners can see. Live analytics remain connected automatically, and Selected Work has its own manager.</p></div></div><form id="partnerDashboardEditor" class="content-editor"><div class="admin-section-head"><div><small>Partner-facing content</small><h3>Private headquarters editor</h3></div><span class="editor-status" id="partnerEditorStatus"></span></div><div class="editor-grid">
+      <label><span>Overview title</span><input name="partner_overview_title" maxlength="240"></label><label class="field-wide"><span>Overview introduction</span><textarea name="partner_overview_intro" rows="3" maxlength="1000"></textarea></label>
+      <label><span>Modeling section title</span><input name="modeling_title" maxlength="180"></label><label><span>Talent name / identity</span><input name="modeling_talent" maxlength="180"></label><label class="field-wide"><span>Talent description</span><textarea name="modeling_talent_copy" rows="3" maxlength="800"></textarea></label><label><span>Primary fields</span><input name="modeling_fields" maxlength="220"></label><label class="field-wide"><span>Primary fields description</span><textarea name="modeling_fields_copy" rows="3" maxlength="800"></textarea></label><label><span>Location</span><input name="modeling_location" maxlength="180"></label><label class="field-wide"><span>Location and travel details</span><textarea name="modeling_location_copy" rows="3" maxlength="800"></textarea></label><label><span>Representation status</span><input name="modeling_representation" maxlength="180"></label><label class="field-wide"><span>Representation description</span><textarea name="modeling_representation_copy" rows="3" maxlength="800"></textarea></label>
+      <label><span>Partnerships title</span><input name="partnerships_title" maxlength="180"></label><label class="field-wide"><span>Capabilities — one per line</span><textarea name="partnership_capabilities" rows="6" maxlength="2000"></textarea></label>
+      <label><span>Social profiles title</span><input name="socials_title" maxlength="180"></label><label class="field-wide"><span>Social profiles introduction</span><textarea name="socials_intro" rows="3" maxlength="800"></textarea></label><label><span>TikTok URL</span><input type="url" name="tiktok_url" maxlength="500"></label><label><span>Instagram URL</span><input type="url" name="instagram_url" maxlength="500"></label><label><span>Snapchat URL</span><input type="url" name="snapchat_url" maxlength="500"></label><label><span>Facebook URL</span><input type="url" name="facebook_url" maxlength="500"></label><label><span>Official website URL</span><input type="url" name="official_site_url" maxlength="500"></label>
+      <label><span>Audience title</span><input name="audience_title" maxlength="180"></label><label><span>Selected Work title</span><input name="selected_work_title" maxlength="180"></label><label class="field-wide"><span>Selected Work introduction</span><textarea name="selected_work_intro" rows="3" maxlength="800"></textarea></label><label><span>Resources title</span><input name="resources_title" maxlength="180"></label><label class="field-wide"><span>Resources introduction</span><textarea name="resources_intro" rows="3" maxlength="800"></textarea></label><label><span>Collaboration title</span><input name="collaboration_title" maxlength="180"></label><label class="field-wide"><span>Collaboration introduction</span><textarea name="collaboration_intro" rows="4" maxlength="1200"></textarea></label>
+    </div><button class="button button-dark" type="submit">Publish partner dashboard changes <span>↗</span></button></form>`;
+    editorWorkspace.insertAdjacentElement('afterend', workspace);
+  }
+
   function applySiteContent(content = {}) {
     Object.entries(content).forEach(([key, value]) => {
       if (!value) return;
       document.querySelectorAll(`[data-content-text="${key}"]`).forEach(element => { element.textContent = value; });
       document.querySelectorAll(`[data-content-image="${key}"]`).forEach(element => { element.src = value; });
       document.querySelectorAll(`[data-content-email="${key}"]`).forEach(element => { element.textContent = value; element.href = `mailto:${value}`; });
+      document.querySelectorAll(`[data-content-url="${key}"]`).forEach(element => { element.href = value; });
     });
+    if (content.partnership_capabilities) {
+      const list = document.querySelector('[data-view="partnerships"] .portal-list');
+      if (list) {
+        list.innerHTML = '';
+        String(content.partnership_capabilities).split(/\r?\n/).map(item => item.trim()).filter(Boolean).forEach(item => { const row = document.createElement('span'); row.textContent = item; list.appendChild(row); });
+      }
+    }
     const availability = String(content.availability_status || document.querySelector('[data-content-text="availability_status"]')?.textContent || '').toLowerCase();
     document.querySelectorAll('.hero-status').forEach(element => {
       element.classList.remove('status-open', 'status-selective', 'status-limited');
@@ -224,6 +262,15 @@
         if (editableContent.login_image) document.getElementById('loginImagePreview').src = editableContent.login_image;
         if (editableContent.header_logo) document.getElementById('headerLogoPreview').src = editableContent.header_logo;
       }
+      const partnerEditor = document.getElementById('partnerDashboardEditor');
+      if (partnerEditor) partnerContentKeys.forEach(key => {
+        if (!partnerEditor.elements[key]) return;
+        if (key === 'partnership_capabilities') {
+          partnerEditor.elements[key].value = editableContent[key] || Array.from(document.querySelectorAll('[data-view="partnerships"] .portal-list span')).map(item => item.textContent.trim()).join('\n');
+        } else {
+          partnerEditor.elements[key].value = editableContent[key] || document.querySelector(`[data-content-text="${key}"]`)?.textContent?.trim() || document.querySelector(`[data-content-url="${key}"]`)?.href || '';
+        }
+      });
       accessList.innerHTML = data.accessRequests.length ? data.accessRequests.map(item => `<article class="admin-item"><header><strong>${escapeHtml(item.first_name)} ${escapeHtml(item.last_name)}</strong><small>${escapeHtml(item.inquiry_type)}</small></header><p>${escapeHtml(item.company)} · ${escapeHtml(item.professional_role)}<br>${escapeHtml(item.email)}</p><p>${escapeHtml(item.reason)}</p><div class="admin-item-actions"><button data-admin-action="approve" data-id="${escapeHtml(item.id)}">Approve</button><button data-admin-action="decline" data-id="${escapeHtml(item.id)}">Decline</button></div></article>`).join('') : '<p>No pending requests.</p>';
       inquiryList.innerHTML = data.inquiries.length ? data.inquiries.map(item => `<article class="admin-item"><header><strong>${escapeHtml(item.project_name)}</strong><small>${escapeHtml(item.inquiry_type)}</small></header><p>${escapeHtml(item.company)} · ${escapeHtml(item.contact_name)}<br>${escapeHtml(item.email)}</p><p>${escapeHtml(item.project_brief)}</p></article>`).join('') : '<p>No new inquiries.</p>';
       if (partnerList) partnerList.innerHTML = data.partners.length ? data.partners.map(item => `<article class="admin-item partner-account"><header><strong>${escapeHtml(item.contact_name)}</strong><span class="partner-status ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></header><p>${escapeHtml(item.company)} · ${escapeHtml(item.professional_role || item.access_level)}<br>${escapeHtml(item.email)}</p><small>${item.last_seen_at ? `Last visit: ${escapeHtml(new Date(item.last_seen_at).toLocaleString())}` : 'No portal visit recorded yet'}</small>${item.access_level === 'admin' ? '<p class="owner-protected">Owner administrator · protected</p>' : `<div class="admin-item-actions">${item.status === 'active' ? `<button data-partner-action="suspend" data-id="${escapeHtml(item.id)}">Suspend</button>` : `<button data-partner-action="reactivate" data-id="${escapeHtml(item.id)}">Reactivate</button>`}<button data-partner-action="revoke" data-id="${escapeHtml(item.id)}">Revoke</button></div>`}</article>`).join('') : '<p>No partner accounts.</p>';
@@ -315,6 +362,25 @@
       finally { button.disabled = false; }
     });
   }
+
+  const partnerDashboardEditor = document.getElementById('partnerDashboardEditor');
+  if (partnerDashboardEditor) partnerDashboardEditor.addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = partnerDashboardEditor.querySelector('[type="submit"]');
+    const status = document.getElementById('partnerEditorStatus');
+    button.disabled = true; status.textContent = 'Publishing partner dashboard…';
+    try {
+      const content = {};
+      partnerContentKeys.forEach(key => { content[key] = partnerDashboardEditor.elements[key].value.trim(); });
+      const response = await fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to publish partner dashboard changes.');
+      editableContent = { ...editableContent, ...content };
+      applySiteContent(editableContent);
+      status.textContent = 'Partner dashboard published successfully.';
+    } catch (error) { status.textContent = error.message; }
+    finally { button.disabled = false; }
+  });
 
   const portfolioForm = document.getElementById('portfolioForm');
   if (portfolioForm) {

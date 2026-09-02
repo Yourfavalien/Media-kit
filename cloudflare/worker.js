@@ -195,7 +195,10 @@ async function updatePartnerAccess(request, env, id) {
   return json({ message: `Partner access ${status}.` });
 }
 
-const EDITABLE_SETTINGS = new Set(['hero_title','hero_copy','availability_status','profile_title','profile_copy','business_email','hero_image','login_image','header_logo']);
+const EDITABLE_SETTINGS = new Set([
+  'hero_title','hero_copy','availability_status','profile_title','profile_copy','business_email','hero_image','login_image','header_logo',
+  'partner_overview_title','partner_overview_intro','modeling_title','modeling_talent','modeling_talent_copy','modeling_fields','modeling_fields_copy','modeling_location','modeling_location_copy','modeling_representation','modeling_representation_copy','partnerships_title','partnership_capabilities','socials_title','socials_intro','tiktok_url','instagram_url','snapchat_url','facebook_url','official_site_url','audience_title','selected_work_title','selected_work_intro','resources_title','resources_intro','collaboration_title','collaboration_intro'
+]);
 
 async function publicContent(env) {
   const settings = await env.DB.prepare("SELECT setting_key, setting_value FROM site_settings").all();
