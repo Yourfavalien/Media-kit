@@ -47,10 +47,27 @@
     sessionStorage.setItem('yfa-hq-xilo-history', JSON.stringify(history.slice(-10)));
     if (conversation) sessionStorage.setItem('yfa-hq-xilo-conversation', JSON.stringify(conversation));
   };
+  const appendLinkedText = (container, value) => {
+    const source = String(value || '');
+    const pattern = /\[([^\]]+)\]\((https:\/\/[^)\s]+)\)|(https:\/\/[^\s<)]+)/g;
+    let last = 0;
+    let match;
+    while ((match = pattern.exec(source))) {
+      container.appendChild(document.createTextNode(source.slice(last, match.index)));
+      const link = document.createElement('a');
+      link.href = match[2] || match[3];
+      link.textContent = match[1] || match[3];
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      container.appendChild(link);
+      last = pattern.lastIndex;
+    }
+    container.appendChild(document.createTextNode(source.slice(last)));
+  };
   const addMessage = (role, text) => {
     const bubble = document.createElement('div');
     bubble.className = `business-guide-message ${role}`;
-    bubble.textContent = text;
+    appendLinkedText(bubble, text);
     messages.appendChild(bubble);
     messages.scrollTop = messages.scrollHeight;
     return bubble;
