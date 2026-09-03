@@ -5,11 +5,11 @@
   const endpoint = 'https://yourfavalien-business-headquarters.aydenmtz54.workers.dev/api/chat';
   const root = document.createElement('aside');
   root.className = 'business-guide';
-  root.setAttribute('aria-label', 'Xylo business headquarters guide');
+  root.setAttribute('aria-label', 'Xilo business headquarters guide');
   root.innerHTML = `
-    <button class="business-guide-launcher" type="button" aria-expanded="false" aria-controls="businessGuidePanel">Ask Xylo</button>
+    <button class="business-guide-launcher" type="button" aria-expanded="false" aria-controls="businessGuidePanel">Ask Xilo</button>
     <section class="business-guide-panel" id="businessGuidePanel" hidden>
-      <header><div><small>XYLO / BUSINESS HEADQUARTERS</small><strong>How can I guide you?</strong></div><button type="button" data-guide-close aria-label="Close guide">×</button></header>
+      <header><div><small>XILO / BUSINESS HEADQUARTERS</small><strong>How can I guide you?</strong></div><button type="button" data-guide-close aria-label="Close guide">×</button></header>
       <p>Ask about partnerships, modeling, casting, representation, press, or professional access.</p>
       <div class="business-guide-actions" aria-label="Quick destinations">
         <button type="button" data-guide-view="modeling">Modeling or casting</button>
@@ -20,8 +20,8 @@
       </div>
       <div class="business-guide-messages" data-guide-messages aria-live="polite"></div>
       <form class="business-guide-form">
-        <label class="sr-only" for="businessGuideInput">Message Xylo</label>
-        <textarea id="businessGuideInput" rows="2" maxlength="1200" placeholder="Ask Xylo about the headquarters…" required></textarea>
+        <label class="sr-only" for="businessGuideInput">Message Xilo</label>
+        <textarea id="businessGuideInput" rows="2" maxlength="1200" placeholder="Ask Xilo about the headquarters…" required></textarea>
         <button type="submit" aria-label="Send message">Send</button>
       </form>
       <a href="https://yourfavalien.com/contact">I need general contact instead →</a>
@@ -110,20 +110,20 @@
         body: JSON.stringify({ messages: history.map(({ role, content }) => ({ role, content })), conversationId: conversation?.id, visitorToken: conversation?.token, pageUrl: window.location.href })
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || 'Xylo could not answer right now.');
+      if (!response.ok) throw new Error(data.error || 'Xilo could not answer right now.');
       if (data.conversationId && data.visitorToken) {
         conversation = { id: data.conversationId, token: data.visitorToken };
         save();
         if (!pollTimer) pollTimer = window.setInterval(poll, 5000);
       }
       waiting.remove();
-      const reply = data.reply || 'Your message is waiting for Ayden in the Xylo inbox.';
+      const reply = data.reply || 'Your message is waiting for Ayden in the Xilo inbox.';
       addMessage('assistant', reply);
       history.push({ role: 'assistant', content: reply });
       history = history.slice(-10);
       save();
     } catch (error) {
-      waiting.textContent = error.message || 'Xylo is temporarily unavailable. Please use the business inquiry form.';
+      waiting.textContent = error.message || 'Xilo is temporarily unavailable. Please use the business inquiry form.';
     } finally {
       send.disabled = false;
       input.focus({ preventScroll: true });

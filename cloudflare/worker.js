@@ -177,7 +177,7 @@ async function xiloTraining(request, env) {
   const value = JSON.stringify(training);
   if (value.length > 70000) return json({ error: 'Training is too large.' }, 400);
   await env.DB.prepare("INSERT INTO xilo_training (id,training_json,updated_by,updated_at) VALUES ('primary',?,?,CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET training_json=excluded.training_json,updated_by=excluded.updated_by,updated_at=CURRENT_TIMESTAMP").bind(value, auth.email).run();
-  return json({ message: 'Xylo controls saved.' });
+  return json({ message: 'Xilo controls saved.' });
 }
 
 async function xiloAdminConversations(request, env, id, action) {
@@ -210,10 +210,10 @@ async function xiloAdminConversations(request, env, id, action) {
 async function xiloChat(request, env) {
   const data = await readJson(request);
   const messages = Array.isArray(data.messages) ? data.messages.slice(-10).filter(m => ['user','assistant'].includes(m.role) && typeof m.content === 'string') : [];
-  if (!messages.length || messages.at(-1).role !== 'user') return json({ error: 'Add a message for Xylo.' }, 400);
+  if (!messages.length || messages.at(-1).role !== 'user') return json({ error: 'Add a message for Xilo.' }, 400);
   const row = await env.DB.prepare("SELECT training_json FROM xilo_training WHERE id='primary'").first();
   const training = row ? JSON.parse(row.training_json || '{}') : {};
-  const instructions = "You are Xylo, the official YourFavAlien website guide. Be warm, concise, accurate, and professional. Never invent prices, bookings, availability, private information, statistics, or promises. Route business opportunities to the Business Headquarters. Owner-approved controls follow: " + JSON.stringify(training);
+  const instructions = "You are Xilo, the official YourFavAlien website guide. Be warm, concise, accurate, and professional. Never invent prices, bookings, availability, private information, statistics, or promises. Route business opportunities to the Business Headquarters. Owner-approved controls follow: " + JSON.stringify(training);
   let conversation = null;
   if (!data.testMode) {
     if (data.conversationId && data.visitorToken) conversation = await env.DB.prepare("SELECT id,visitor_token,mode FROM xilo_conversations WHERE id=? AND visitor_token=?").bind(clean(data.conversationId,80),clean(data.visitorToken,160)).first();
@@ -224,10 +224,10 @@ async function xiloChat(request, env) {
     await env.DB.prepare("INSERT INTO xilo_messages (id,conversation_id,sender,body) VALUES (?,?, 'visitor',?)").bind(crypto.randomUUID(),conversation.id,clean(messages.at(-1).content,1200)).run();
     if (conversation.mode === 'human') return json({ reply:null,mode:'human',conversationId:conversation.id,visitorToken:conversation.visitor_token });
   }
-  if (!env.AI) return json({ error: 'Xylo AI is not connected.' }, 503);
+  if (!env.AI) return json({ error: 'Xilo AI is not connected.' }, 503);
   const output = await env.AI.run('@cf/qwen/qwen3-30b-a3b-fp8',{messages:[{role:'system',content:instructions},...messages],max_tokens:700,temperature:.2});
   const reply = typeof output?.response === 'string' ? output.response.trim() : '';
-  if (!reply) return json({ error: 'Xylo could not answer right now.' }, 502);
+  if (!reply) return json({ error: 'Xilo could not answer right now.' }, 502);
   if (conversation) await env.DB.batch([
     env.DB.prepare("INSERT INTO xilo_messages (id,conversation_id,sender,body) VALUES (?,?, 'xilo',?)").bind(crypto.randomUUID(),conversation.id,reply),
     env.DB.prepare("UPDATE xilo_conversations SET last_message_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(conversation.id)
