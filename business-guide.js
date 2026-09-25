@@ -2,14 +2,14 @@
   if (window.__YFA_BUSINESS_GUIDE__) return;
   window.__YFA_BUSINESS_GUIDE__ = true;
 
-  const endpoint = 'https://yourfavalien-business-headquarters.aydenmtz54.workers.dev/api/chat';
+  const endpoint = 'https://yourfavalien-business-headquarters.aydenmtz54.workers.dev/api/headquarters/chat';
   const root = document.createElement('aside');
   root.className = 'business-guide';
-  root.setAttribute('aria-label', 'Xilo business headquarters guide');
+  root.setAttribute('aria-label', 'Headquarters Assistant for Business Headquarters');
   root.innerHTML = `
     <button class="business-guide-launcher" type="button" aria-expanded="false" aria-controls="businessGuidePanel">Headquarters Assistant</button>
     <section class="business-guide-panel" id="businessGuidePanel" hidden>
-      <header><div><small>XILO / BUSINESS HEADQUARTERS</small><strong>How can I guide you?</strong></div><button type="button" data-guide-close aria-label="Close guide">×</button></header>
+      <header><div><small>HEADQUARTERS ASSISTANT / BUSINESS HEADQUARTERS</small><strong>How can I guide you?</strong></div><button type="button" data-guide-close aria-label="Close guide">×</button></header>
       <p>Ask about partnerships, modeling, casting, representation, press, or professional access.</p>
       <div class="business-guide-actions" aria-label="Quick destinations">
         <button type="button" data-guide-view="modeling">Modeling or casting</button>
@@ -20,11 +20,11 @@
       </div>
       <div class="business-guide-messages" data-guide-messages aria-live="polite"></div>
       <form class="business-guide-form">
-        <label class="sr-only" for="businessGuideInput">Message Xilo</label>
-        <textarea id="businessGuideInput" rows="2" maxlength="1200" placeholder="Ask Xilo about the headquarters…" required></textarea>
+        <label class="sr-only" for="businessGuideInput">Message Headquarters Assistant</label>
+        <textarea id="businessGuideInput" rows="2" maxlength="1200" placeholder="Message Headquarters Assistant…" required></textarea>
         <button type="submit" aria-label="Send message">Send</button>
       </form>
-      <a href="https://yourfavalien.com/contact">I need general contact instead →</a>
+      <a href="#contact">Open the Business Desk →</a>
     </section>`;
   document.body.appendChild(root);
 
@@ -39,13 +39,13 @@
   let pollTimer = 0;
 
   try {
-    history = JSON.parse(sessionStorage.getItem('yfa-hq-xilo-history') || '[]');
-    conversation = JSON.parse(sessionStorage.getItem('yfa-hq-xilo-conversation') || 'null');
+    history = JSON.parse(sessionStorage.getItem('yfa-hq-assistant-history') || '[]');
+    conversation = JSON.parse(sessionStorage.getItem('yfa-hq-assistant-conversation') || 'null');
   } catch (_) {}
 
   const save = () => {
-    sessionStorage.setItem('yfa-hq-xilo-history', JSON.stringify(history.slice(-10)));
-    if (conversation) sessionStorage.setItem('yfa-hq-xilo-conversation', JSON.stringify(conversation));
+    sessionStorage.setItem('yfa-hq-assistant-history', JSON.stringify(history.slice(-10)));
+    if (conversation) sessionStorage.setItem('yfa-hq-assistant-conversation', JSON.stringify(conversation));
   };
   const appendLinkedText = (container, value) => {
     const source = String(value || '');
@@ -98,7 +98,7 @@
   async function poll() {
     if (!conversation) return;
     try {
-      const response = await fetch(`${endpoint}/conversations/${encodeURIComponent(conversation.id)}/messages?token=${encodeURIComponent(conversation.token)}`, { cache: 'no-store' });
+      const response = await fetch(`${endpoint}/${encodeURIComponent(conversation.id)}/messages?token=${encodeURIComponent(conversation.token)}`, { cache: 'no-store' });
       if (!response.ok) return;
       const data = await response.json();
       (data.messages || []).filter(item => item.sender === 'ayden' && !history.some(saved => saved.id === `ayden-${item.id}`)).forEach(item => {
@@ -127,20 +127,20 @@
         body: JSON.stringify({ messages: history.map(({ role, content }) => ({ role, content })), conversationId: conversation?.id, visitorToken: conversation?.token, pageUrl: window.location.href })
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || 'Xilo could not answer right now.');
+      if (!response.ok) throw new Error(data.error || 'The Headquarters Assistant could not answer right now.');
       if (data.conversationId && data.visitorToken) {
         conversation = { id: data.conversationId, token: data.visitorToken };
         save();
         if (!pollTimer) pollTimer = window.setInterval(poll, 5000);
       }
       waiting.remove();
-      const reply = data.reply || 'Your message is waiting for Ayden in the Xilo inbox.';
+      const reply = data.reply || 'Your message is waiting at the Business Desk.';
       addMessage('assistant', reply);
       history.push({ role: 'assistant', content: reply });
       history = history.slice(-10);
       save();
     } catch (error) {
-      waiting.textContent = error.message || 'Xilo is temporarily unavailable. Please use the business inquiry form.';
+      waiting.textContent = error.message || 'The Headquarters Assistant is temporarily unavailable. Please use the business inquiry form.';
     } finally {
       send.disabled = false;
       input.focus({ preventScroll: true });
