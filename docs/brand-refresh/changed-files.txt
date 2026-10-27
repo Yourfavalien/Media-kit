@@ -23,3 +23,6 @@ portal.js
 styles.css
 xilo-control.html
 xilo-control.js
+yfa-headquarters-logo.svg
+yourfavalien-ufo-clean.png
+yourfavalien-ufo-logo.png
