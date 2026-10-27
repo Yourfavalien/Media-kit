@@ -119,7 +119,7 @@
     const config = assistants[kind];
     playAlert();
     const title = conversation.mode === 'human' ? 'Human handoff waiting' : `New ${config.name} message`;
-    const notification = new Notification(title, { body: `${config.location} · Visitor ${conversation.id.slice(0, 6).toUpperCase()}`, icon: '/yourfavalien-ufo-clean.png', tag: `${kind}-${conversation.id}` });
+    const notification = new Notification(title, { body: `${config.location} · Visitor ${conversation.id.slice(0, 6).toUpperCase()}`, icon: '/06_YFA_Chrome_Monogram_Clean.png', tag: `${kind}-${conversation.id}` });
     notification.onclick = () => { window.focus(); showView('inbox'); selectInbox(kind); notification.close(); };
   }
   function updateStats() {

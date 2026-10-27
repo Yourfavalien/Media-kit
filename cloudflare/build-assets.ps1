@@ -5,6 +5,14 @@ $outputDir = Join-Path $projectRoot '.cloudflare-public'
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 
 $assets = @(
+  '06_YFA_Chrome_Monogram.png',
+  '06_YFA_Chrome_Monogram_Clean.png',
+  '03b_Four_Point_Chrome_Star.png',
+  'favicon.png',
+  'favicon.ico',
+  'apple-touch-icon.png',
+  '01_Primary_Chrome_Wordmark.png',
+  '01_Primary_Chrome_Wordmark_Clean.png',
   'index.html',
   'login.html',
   'styles.css',

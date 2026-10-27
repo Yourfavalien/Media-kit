@@ -12,12 +12,12 @@
     statusField.innerHTML = '<span>Opportunity status</span><select name="availability_status"><option value="Accepting all opportunities">🟢 Green — accepting all opportunities</option><option value="Currently reviewing select opportunities">🟡 Yellow — reviewing select opportunities</option><option value="Availability limited — inquiries still welcome">🔴 Red — availability limited, but inquiries are welcome</option></select><small>Choose a status and the homepage light changes automatically.</small>';
     editorGrid.insertBefore(statusField, profileTitle || null);
   }
-  const headquartersLogos = document.querySelectorAll('img[src$="yourfavalien-ufo-clean.png"]');
+  const headquartersLogos = document.querySelectorAll('img[src$="06_YFA_Chrome_Monogram_Clean.png"],img[src$="01_Primary_Chrome_Wordmark_Clean.png"]');
   headquartersLogos.forEach(logo => { logo.dataset.contentImage = 'header_logo'; });
   if (editorGrid && !document.querySelector('#contentEditor [name="header_logo_upload"]')) {
     const logoField = document.createElement('label');
     logoField.className = 'image-editor';
-    logoField.innerHTML = '<span>Business Headquarters logo</span><img id="headerLogoPreview" src="yourfavalien-ufo-clean.png" alt="Business Headquarters logo preview"><input name="header_logo_upload" type="file" accept="image/jpeg,image/png,image/webp"><small>Updates the logo across the Headquarters header, secure-entry page, previews, partner portal, and admin area. The words stay the same.</small>';
+    logoField.innerHTML = '<span>Business Headquarters logo</span><img id="headerLogoPreview" src="01_Primary_Chrome_Wordmark_Clean.png" alt="Business Headquarters logo preview"><input name="header_logo_upload" type="file" accept="image/jpeg,image/png,image/webp"><small>Updates the logo across the Headquarters header, secure-entry page, previews, partner portal, and admin area. The words stay the same.</small>';
     editorGrid.appendChild(logoField);
   }
 
@@ -51,6 +51,17 @@
     editorWorkspace.insertAdjacentElement('afterend', workspace);
   }
 
+  async function currentBrandContent(content = {}) {
+    const result = { ...content };
+    if (typeof result.header_logo !== 'string' || !result.header_logo.startsWith('data:')) return result;
+    // Only retire the exact UFO upload currently saved in Headquarters settings.
+    // Future owner uploads still use the existing logo editor normally.
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(result.header_logo));
+    const hash = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+    if (hash === '12e52ef40b3aa9af98f036823d6b6badcbc016af4cb3501fe4c51bc9469114ac') delete result.header_logo;
+    return result;
+  }
+
   function applySiteContent(content = {}) {
     Object.entries(content).forEach(([key, value]) => {
       if (!value) return;
@@ -78,7 +89,7 @@
       const response = await fetch(`${apiBase}/api/content`, { headers: { Accept: 'application/json' } });
       if (!response.ok) return;
       const data = await response.json();
-      editableContent = data.content || {};
+      editableContent = await currentBrandContent(data.content || {});
       applySiteContent(editableContent);
     } catch (_) {}
   }
@@ -254,7 +265,7 @@
       if (!response.ok) throw new Error(data.error || 'Unable to load the control room.');
       const totals = document.querySelectorAll('#adminSummary strong');
       [data.accessRequests.length, data.inquiries.length, data.activePartners].forEach((value, index) => { if (totals[index]) totals[index].textContent = value; });
-      editableContent = { ...editableContent, ...(data.content || {}) };
+      editableContent = { ...editableContent, ...await currentBrandContent(data.content || {}) };
       const editor = document.getElementById('contentEditor');
       if (editor) {
         ['hero_title','hero_copy','availability_status','profile_title','profile_copy','business_email'].forEach(key => { if (editor.elements[key]) editor.elements[key].value = editableContent[key] || document.querySelector(`[data-content-text="${key}"],[data-content-email="${key}"]`)?.textContent?.trim() || ''; });
